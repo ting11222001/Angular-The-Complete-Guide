@@ -1420,3 +1420,7 @@ In the `UserComponent`'s template now needs to access `user` like this:
 Do not read a required signal input in the constructor. It is not set yet and
 it throws. Read it in `ngOnInit`, or inside a `computed` or `effect`, which
 run later.
+
+### Adding More Components to the Demo App
+
+Added `TaskComponent` under `TasksComponent`.
