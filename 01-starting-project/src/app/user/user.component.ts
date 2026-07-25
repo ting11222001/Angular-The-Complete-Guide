@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, output, Output } from '@angular/core';
+import { Component, EventEmitter, input, Input, output, Output } from '@angular/core';
 
 interface User {
   id: string;
@@ -14,14 +14,14 @@ interface User {
   styleUrl: './user.component.css'
 })
 export class UserComponent {
-  @Input({required: true}) user!: User;
-  @Output() select = new EventEmitter<string>();
+  user = input.required<User>();
+  select = output<string>();
 
   get imagePath() {
-    return 'assets/users/' + this.user.avatar;
+    return 'assets/users/' + this.user().avatar;
   }
 
   onSelectUser() {
-    this.select.emit(this.user.id);
+    this.select.emit(this.user().id);
   }
 }

@@ -1330,3 +1330,93 @@ To this to conditionally render by using `@if` and `@else` for fallback:
 ```
 
 I don't need the `?` operator for `selectedUser.name` anymore as there will be `selectedUser` in the `if` block.
+
+### Quick recap for myself on Jul 25 2026
+
+#### Migrating UserComponent to signal inputs and outputs
+
+**What changed**
+
+Moved from the decorator based inputs and outputs API to the signal based one.
+
+In `UserComponent`, the old code is commented out:
+```javascript
+import { Component, EventEmitter, input, Input, output, Output } from '@angular/core';
+
+interface User {
+  id: string;
+  name: string;
+  avatar: string;
+};
+
+@Component({
+  selector: 'app-user',
+  standalone: true,
+  imports: [],
+  templateUrl: './user.component.html',
+  styleUrl: './user.component.css'
+})
+export class UserComponent {
+  // @Input({required: true}) user!: User;
+  // @Output() select = new EventEmitter<string>();
+  user = input.required<User>();
+  select = output<string>();
+
+  get imagePath() {
+    // return 'assets/users/' + this.user.avatar;
+    return 'assets/users/' + this.user().avatar;
+  }
+
+  onSelectUser() {
+    // this.select.emit(this.user.id);
+    this.select.emit(this.user().id);
+  }
+}
+```
+
+In the `UserComponent`'s template now needs to access `user` like this:
+```html
+<div>
+    <button (click)="onSelectUser()">
+        <img 
+        [src]="imagePath"
+        [alt]="user().name" />
+        <span>{{ user().name }}</span>
+    </button>
+</div>
+```
+
+**The terms**
+
+* `input()` and `input.required()` are *signal inputs*, also called signal
+  based inputs. They return an `InputSignal<T>`.
+* Calling `this.user()` is *reading the signal*. A signal is a getter function,
+  so the brackets are how you unwrap the current value.
+* A signal input is *read only* inside the child. Only the parent can set it.
+  The old decorator input was a writable property.
+* `output()` returns an `OutputEmitterRef<T>`. It is **not** a signal, because
+  an event is a notification, not a piece of state. It replaces
+  `EventEmitter`, and Angular handles the cleanup on destroy.
+* The `!` in `user!: User` is TypeScript's *definite assignment assertion*.
+  It promises the value will exist, without proving it. A required signal
+  input removes the need for it, since Angular fails the build when a parent
+  omits the binding.
+* The *public template API* of the component did not change. The parent still
+  writes `[user]` and `(select)`. Only the internals moved.
+
+**Why**
+
+1. Derived values can use `computed()`, which caches and only recalculates
+   when the input actually changes. A `get` accessor runs on every read.
+2. To react to a change, `effect()` replaces `ngOnChanges` and its
+   `SimpleChanges` string keys.
+3. Signals give Angular finer grained change detection. It can track which
+   parts of the template read which signal, instead of checking the whole
+   component. This is the groundwork for zoneless applications.
+4. The input can no longer be overwritten by the child by accident.
+
+**Gotcha**
+
+Do not read a required signal input in the constructor. It is not set yet and
+it throws. Read it in `ngOnInit`, or inside a `computed` or `effect`, which
+run later.
