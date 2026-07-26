@@ -1424,3 +1424,12 @@ run later.
 ### Adding More Components to the Demo App
 
 Added `TaskComponent` under `TasksComponent`.
+
+
+### Outputting User-specific Tasks
+
+He's using `get` this getter to work with a computed property, e.g. `selectedUserTasks`.
+
+Use the `@for` Angular template syntax again.
+
+Add more properties using signal inputs in `TasksComponent` and update the `AppComponent` accordingly.
