@@ -1433,3 +1433,5 @@ He's using `get` this getter to work with a computed property, e.g. `selectedUse
 Use the `@for` Angular template syntax again.
 
 Add more properties using signal inputs in `TasksComponent` and update the `AppComponent` accordingly.
+
+I also moved the dummy tasks data to a constant file, similar to the dummy users data.
