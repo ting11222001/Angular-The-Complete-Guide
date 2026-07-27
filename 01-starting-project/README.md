@@ -1,4 +1,8 @@
-# Essentials
+# EasyTask
+
+This is a simple task management app built with Angular, EasyTask.
+
+It's a practice project from the section 2 of this course, Angular Essentials - Components, Templates, Services & More.
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.1.2.
 
