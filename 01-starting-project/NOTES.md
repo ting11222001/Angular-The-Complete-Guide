@@ -1,6 +1,10 @@
 # NOTES
 
-This is a place where I take notes for the practice project of the section 2 of the course, Angular Essentials - Components, Templates, Services & More.
+This is a place where I take notes for the practice project of the section 2 of the course, `Angular Essentials - Components, Templates, Services & More`.
+
+The project folder is named `01-starting-project`, but it should be `easy-task`.
+
+As halfway renaming the project caused too much trouble, I kept it as is, and the branch name for this project is `app-easy-task`.
 
 ## Angular Essentials - Components, Templates, Services & More
 
@@ -1437,3 +1441,43 @@ import { type User } from './user.model';
 ```
 
 ### Dynamic CSS Styling with Class Bindings
+
+When we selected a user in the `AppComponent`, we want to pass the `selected` status to the `UserComponent` to highlight it with purple.
+
+So we add a new property in the `UserComponent` called `selected` and it's a `boolean`value:
+```ts
+export class UserComponent {
+  user = input.required<User>();
+  select = output<string>();
+  @Input({ required: true }) selected!: boolean;
+```
+
+Then in the `AppComponent` add that `selected` property to the `app-user` tag:
+```html
+  <ul id="users">
+    @for(user of users; track user.id) {
+      <li>
+        <app-user [user]="user" [selected]="user.id === selectedUserId" (select)="onSelectUser($event)" />
+      </li>
+    }
+```
+
+`UserComponent` has this styling:
+```css
+.active {
+  background-color: #9965dd;
+  color: #150722;
+}
+```
+
+`UserComponent` template can add this class binding like this:
+```html
+<div>
+    <button [class.active]="selected" (click)="onSelectUser()">
+</div>
+```
+
+So when the button is `active` i.e. true, then the colour will be applied to the button.
+
+
+### More Component Communication: Deleting Tasks
