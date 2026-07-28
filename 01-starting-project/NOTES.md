@@ -1481,3 +1481,86 @@ So when the button is `active` i.e. true, then the colour will be applied to the
 
 
 ### More Component Communication: Deleting Tasks
+
+Similar to `UserComponent` capture the `select` event, the `TaskComponent` now has a `complete` event that it will emit the task id bac kto the `TasksComponent`.
+
+`TaskComponent` template:
+```html
+<article>
+    <h2>{{ task.title }}</h2>
+    <time>{{ task.dueDate }}</time>
+    <p>{{ task.summary }}</p>
+    <p class="actions">
+        <button (click)="onCompleteTask()">Complete</button>
+    </p>
+</article>
+```
+
+`TaskComponent` see `onCompleteTask()`:
+```ts
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { type Task } from './task.model';
+
+@Component({
+  selector: 'app-task',
+  standalone: true,
+  imports: [],
+  templateUrl: './task.component.html',
+  styleUrl: './task.component.css'
+})
+export class TaskComponent {
+  @Input({ required: true }) task!: Task;
+  @Output() complete = new EventEmitter<string>();
+
+  onCompleteTask() {
+    this.complete.emit(this.task.id);
+  }
+}
+```
+
+`TasksComponent` template should make sure to capture the emitted data from `TaskComponent` i.e. the task id. See `(complete)`:
+```ts
+<section id="tasks">
+  <header>
+    <h2>{{ name() }}'s Tasks</h2>
+    <menu>
+      <button>Add Task</button>
+    </menu>
+  </header>
+  <ul>
+    @for(task of selectedUserTasks; track task.id) {
+        <li>
+            <app-task [task]="task" (complete)="onCompleteTask($event)"></app-task>
+        </li>
+    } 
+  </ul>
+</section>
+```
+
+And finally, `TasksComponent` should only show all the tasks EXCEPT the completed task's id. See `onCompleteTask`:
+```ts
+import { Component, input, Input } from '@angular/core';
+import { TaskComponent } from './task/task.component';
+import { DUMMY_TASKS } from '../dummy-tasks';
+
+@Component({
+  selector: 'app-tasks',
+  standalone: true,
+  imports: [TaskComponent],
+  templateUrl: './tasks.component.html',
+  styleUrl: './tasks.component.css'
+})
+export class TasksComponent {
+  userId = input.required<String>();
+  name = input.required<String>();
+  tasks = DUMMY_TASKS;
+
+  get selectedUserTasks() {
+    return this.tasks.filter((task) => task.userId === this.userId());
+  }
+
+  onCompleteTask(taskId: string) {
+    this.tasks = this.tasks.filter((task) => task.id !== taskId);
+  }
+}
+```
