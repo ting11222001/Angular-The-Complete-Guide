@@ -1414,3 +1414,26 @@ export class TaskComponent {
   @Input({ required: true }) task!: Task;
 }
 ```
+
+### Storing Data Models in Separate Files
+
+Move the interface type into a separate file like a data model file, `user.model.ts`.
+
+Optional, but I can use `type` to make it clear that it's a type definition.
+
+For example, I moved the `interface` of `User` from the `UserComponent` into `user.model.ts`. Added `export`:
+
+```ts
+export interface User {
+  id: string;
+  name: string;
+  avatar: string;
+};
+```
+
+Then `import` in the `UserComponent`:
+```javascript
+import { type User } from './user.model';
+```
+
+### Dynamic CSS Styling with Class Bindings
