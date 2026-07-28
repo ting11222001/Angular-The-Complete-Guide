@@ -1390,3 +1390,27 @@ Use the `@for` Angular template syntax again.
 Add more properties using signal inputs in `TasksComponent` and update the `AppComponent` accordingly.
 
 I also moved the dummy tasks data to a constant file, similar to the dummy users data.
+
+### Outputting Task Data in the Task Component
+
+In this `TaskComponent`, I'm using the `@Input` decorator to define property instead of input signal as I notice that in my current workplace I will see this too:
+```javascript
+import { Component, Input } from '@angular/core';
+
+interface Task {
+  title: string;
+  dueDate: string;
+  summary: string;
+};
+
+@Component({
+  selector: 'app-task',
+  standalone: true,
+  imports: [],
+  templateUrl: './task.component.html',
+  styleUrl: './task.component.css'
+})
+export class TaskComponent {
+  @Input({ required: true }) task!: Task;
+}
+```
