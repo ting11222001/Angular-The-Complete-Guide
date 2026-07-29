@@ -1564,3 +1564,53 @@ export class TasksComponent {
   }
 }
 ```
+
+### Creating & Conditionally Rendering Another Component
+
+Run:
+```bash
+ng g c tasks/new-task --skip-tests
+```
+
+In `TasksComponent`, add a click listener on the `Add Task` to call this `onStartAddTask()`, which will set true to the `isAddingTask` flag, so we can see the `NewTaskComponent` conditionally.
+
+`TasksComponent` template:
+```html
+@if(isAddingTask) {
+  <app-new-task />
+}
+
+<section id="tasks">
+  <header>
+    <h2>{{ name() }}'s Tasks</h2>
+    <menu>
+      <button (click)="onStartAddTask()">Add Task</button>
+    </menu>
+  </header>
+  ...
+</section>
+```
+
+`TasksComponent`:
+```ts
+
+@Component({
+  selector: 'app-tasks',
+  standalone: true,
+  imports: [TaskComponent, NewTaskComponent],
+  templateUrl: './tasks.component.html',
+  styleUrl: './tasks.component.css'
+})
+export class TasksComponent {
+  userId = input.required<String>();
+  name = input.required<String>();
+  tasks = DUMMY_TASKS;
+  isAddingTask = false;
+
+...
+
+  onStartAddTask() {
+    this.isAddingTask = true;
+  }
+}
+```
