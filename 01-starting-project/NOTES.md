@@ -1614,3 +1614,101 @@ export class TasksComponent {
   }
 }
 ```
+
+### Managing The "New Task" Dialog
+
+Start with `TasksComponent` by adding `onCancelAddTask()`.
+
+```ts
+export class TasksComponent {
+  userId = input.required<String>();
+  name = input.required<String>();
+  tasks = DUMMY_TASKS;
+  isAddingTask = false;
+
+  onCancelAddTask() {
+    this.isAddingTask = false;
+  }
+}
+```
+
+In `TasksComponent` template, `NewTasksComponent` can have `cancel` custom event created by an output property (declared with the @Output() decorator).
+
+```ts
+@Component({
+  selector: 'app-new-task',
+  standalone: true,
+  imports: [],
+  templateUrl: './new-task.component.html',
+  styleUrl: './new-task.component.css'
+})
+export class NewTaskComponent {
+  @Output() cancel = new EventEmitter<void>(); // void: as the output event emitter is not emitting any data
+  
+  onCancel() {
+    this.cancel.emit();
+  }
+}
+```
+
+`@Output() cancel` is the bell button wired up inside the house. `this.cancel.emit()` is someone pressing it. And `(cancel)="onCancelAddTask()"` in the parent is you saying "when that bell rings, I will go answer the door".
+
+You may also hear people say the child "emits an event up to the parent". That is the general pattern name: child to parent communication. 
+
+It will emit `void`, which will then trigger `onCancelAddTask()`.
+
+```html
+@if(isAddingTask) {
+  <app-new-task (cancel)="onCancelAddTask()"/>
+}
+
+<section id="tasks">
+  <header>
+    <h2>{{ name() }}'s Tasks</h2>
+    <menu>
+      <button (click)="onStartAddTask()">Add Task</button>
+    </menu>
+  </header>
+  <ul>
+    @for(task of selectedUserTasks; track task.id) {
+        <li>
+            <app-task [task]="task" (complete)="onCompleteTask($event)"></app-task>
+        </li>
+    } 
+  </ul>
+</section>
+```
+
+The reverse direction, `[task]="task"` in your `app-task` line, is property binding using an input property.
+
+A coupld of things in the `NewTaskComponent` template: 
+- Make sure the backdrop and the cancel button of the `NewTaskComponent` template both places had added the click listener.
+- Note that the cancel button is of `button` type so that it won't accidentally submit the form when it's clicked.
+
+```html
+<div class="backdrop" (click)="onCancel()"></div>
+<dialog open>
+  <h2>Add Task</h2>
+  <form>
+    <p>
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" />
+    </p>
+
+    <p>
+      <label for="summary">Summary</label>
+      <textarea id="summary" rows="5" name="summary"></textarea>
+    </p>
+
+    <p>
+      <label for="due-date">Due Date</label>
+      <input type="date" id="due-date" name="due-date" />
+    </p>
+
+    <p class="actions">
+      <button type="button" (click)="onCancel()">Cancel</button>
+      <button type="submit">Create</button>
+    </p>
+  </form>
+</dialog>
+```
