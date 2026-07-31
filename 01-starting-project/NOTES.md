@@ -23,16 +23,18 @@ Then, run `npm start` which will run `ng serve` from Angular CLI under the hood.
 Go to Local: http://localhost:4200/ in the browser.
 
 Right click and select `view page source`, I can see:
+
 ```
 <script src="polyfills.js" type="module"></script><script src="main.js" type="module"></script></body>
 ```
 
 The `main.js` is acutally from `main.ts` which is compiled by the CLI tool:
+
 ```ts
 // main.ts
-import { bootstrapApplication } from '@angular/platform-browser';
+import { bootstrapApplication } from "@angular/platform-browser";
 
-import { AppComponent } from './app/app.component';
+import { AppComponent } from "./app/app.component";
 
 bootstrapApplication(AppComponent).catch((err) => console.error(err));
 ```
@@ -42,11 +44,11 @@ The `AppComponent` is actually from `app.component.ts`. The imported path doesn'
 ```ts
 // app.component.ts
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  templateUrl: "./app.component.html",
+  styleUrl: "./app.component.css",
 })
 export class AppComponent {}
 ```
@@ -65,19 +67,20 @@ The passed in configuration object has several properties. For example, `selecto
 ```
 
 The `AppComponent` will then render in `index.html` at `<app-root></app-root>` line:
+
 ```html
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Essentials</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Essentials</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
 </html>
 ```
 
@@ -104,6 +107,7 @@ If using Angular 19+ then I don't need to manually set `standalone: true,`.
 ### Using the Custom Component
 
 To see the `HeaderComponent` on screen, I can't just add it to the `index.html` like this:
+
 ```html
 <body>
   <app-header></app-header>
@@ -112,38 +116,43 @@ To see the `HeaderComponent` on screen, I can't just add it to the `index.html` 
 ```
 
 I need to add this here in `main.ts` too as Angular won't automatically scan all the files and register my components:
+
 ```ts
 bootstrapApplication(HeaderComponent);
-``` 
+```
 
 But eventually I should create a tree of components:
+
 ```
 One Angular Application = One Component Tree
 ```
 
 So I can just move `HeaderComponent` into the `AppComponent` like this:
+
 ```html
 <!-- app.component.html -->
 <app-header></app-header>
 ```
 
 And use `imports` array in the configuration of `@Component`:
+
 ```ts
 // AppComponent
-import { Component } from '@angular/core';
-import { HeaderComponent } from './header.component';
+import { Component } from "@angular/core";
+import { HeaderComponent } from "./header.component";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [HeaderComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  templateUrl: "./app.component.html",
+  styleUrl: "./app.component.css",
 })
 export class AppComponent {}
 ```
 
 And keep `index.html` as before:
+
 ```html
 <body>
   <app-root></app-root>
@@ -151,9 +160,10 @@ And keep `index.html` as before:
 ```
 
 And keep `main.ts` as before:
+
 ```ts
-import { bootstrapApplication } from '@angular/platform-browser';
-import { AppComponent } from './app/app.component';
+import { bootstrapApplication } from "@angular/platform-browser";
+import { AppComponent } from "./app/app.component";
 
 bootstrapApplication(AppComponent).catch((err) => console.error(err));
 ```
@@ -165,6 +175,7 @@ Add `styleUrl` to the `@Component`.
 Also updated `styles.css`, `header.component.css` and `index.html` with the new font links.
 
 Note that in `angular.json` here it needs to specify where the images are:
+
 ```json
 "assets": [
     "src/favicon.ico",
@@ -177,8 +188,9 @@ Note that in `angular.json` here it needs to specify where the images are:
 Create a `header` folder under `app` to put in all the header component related files.
 
 Once moved, I can see `AppComponent`'s `HeaderComponent` import is updated:
+
 ```ts
-import { HeaderComponent } from './header/header.component';
+import { HeaderComponent } from "./header/header.component";
 ```
 
 Then, use Angular CLI to create new component, `UserComponent`.
@@ -189,6 +201,7 @@ ng g c user
 ```
 
 It will automatically generate these files:
+
 ```bash
 CREATE src/app/user/user.component.html (20 bytes)
 CREATE src/app/user/user.component.spec.ts (601 bytes)
@@ -198,27 +211,29 @@ CREATE src/app/user/user.component.css (0 bytes)
 
 I can remove `spec.ts` file as it's for automated testing later.
 
-###  Styling & Using Our Next Custom Component
+### Styling & Using Our Next Custom Component
 
 Key things:
 
 - I can use self-closing tag like this:
+
 ```html
 <app-header />
 ```
 
 - Added `UserComponent` to `AppComponent`:
+
 ```ts
-import { Component } from '@angular/core';
-import { HeaderComponent } from './header/header.component';
-import { UserComponent } from './user/user.component';
+import { Component } from "@angular/core";
+import { HeaderComponent } from "./header/header.component";
+import { UserComponent } from "./user/user.component";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [HeaderComponent, UserComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  templateUrl: "./app.component.html",
+  styleUrl: "./app.component.css",
 })
 export class AppComponent {}
 ```
@@ -228,21 +243,22 @@ export class AppComponent {}
 <app-header />
 
 <main>
-    <ul id="users">
-        <li>
-            <app-user />
-        </li>
-    </ul>
+  <ul id="users">
+    <li>
+      <app-user />
+    </li>
+  </ul>
 </main>
 ```
 
 - Updated `UserComponent`'s structure:
+
 ```html
 <div>
-    <button>
-        <img />
-        <span>NAME</span>
-    </button>
+  <button>
+    <img />
+    <span>NAME</span>
+  </button>
 </div>
 ```
 
@@ -257,17 +273,17 @@ Added a new `user` folder with images in `assets` folder. Also, `dummy-user.ts` 
 `randomIndex` can be generated by `Math.random()` but it's choosing between 0 and 1 (excluding 1), so I also need to use `Math.floor()`.
 
 ```ts
-import { Component } from '@angular/core';
-import { DUMMY_USERS }  from '../dummy-users';
+import { Component } from "@angular/core";
+import { DUMMY_USERS } from "../dummy-users";
 
 const randomUserIndex = Math.floor(Math.random() * DUMMY_USERS.length);
 
 @Component({
-  selector: 'app-user',
+  selector: "app-user",
   standalone: true,
   imports: [],
-  templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  templateUrl: "./user.component.html",
+  styleUrl: "./user.component.css",
 })
 export class UserComponent {
   selectedUser = DUMMY_USERS[randomUserIndex]; // selectedUser is a public property
@@ -312,11 +328,11 @@ You still have decimals like 4.35. You need whole numbers. You have three roundi
 
 ```html
 <!-- user.component.html -->
- <div>
-    <button>
-        <img />
-        <span>{{ selectedUser.name }}</span>
-    </button>
+<div>
+  <button>
+    <img />
+    <span>{{ selectedUser.name }}</span>
+  </button>
 </div>
 ```
 
@@ -325,14 +341,13 @@ You still have decimals like 4.35. You need whole numbers. You have three roundi
 Property Binding: wrap the property with square brackets and inside the quote there will be the value assigned to this property.
 
 E.g. in `<img>`:
+
 ```html
 <div>
-    <button>
-        <img 
-        [src]="'assets/users/' + selectedUser.avatar"
-        [alt]="selectedUser.name" />
-        <span>{{ selectedUser.name }}</span>
-    </button>
+  <button>
+    <img [src]="'assets/users/' + selectedUser.avatar" [alt]="selectedUser.name" />
+    <span>{{ selectedUser.name }}</span>
+  </button>
 </div>
 ```
 
@@ -342,17 +357,18 @@ Both are common ways to display dynamic values in Angular.
 
 The short answer: use interpolation to show text, and use property binding to pass a real value.
 
-Use property binding when the value is not a string, or you are passing data to another component, or when setting values on a DOM element's property. 
+Use property binding when the value is not a string, or you are passing data to another component, or when setting values on a DOM element's property.
 
 Example:
+
 ```html
-<button [disabled]="isDisabled">Save</button>
-<app-profile [currentUser]="user"></app-profile>
+<button [disabled]="isDisabled">Save</button> <app-profile [currentUser]="user"></app-profile>
 ```
 
-Use interpolation when you want to display text content between tags. 
+Use interpolation when you want to display text content between tags.
 
 Example:
+
 ```html
 <h1>Hello {{ userName }}</h1>
 <p>You have {{ count }} messages</p>
@@ -361,82 +377,83 @@ Example:
 ### Using Getters For Computed Values
 
 Replace this in `user.component.html`:
+
 ```html
 [src]="'assets/users/' + selectedUser.avatar"
 ```
 
 with this:
+
 ```html
 [src]="imagePath"
 ```
 
 by adding `getter` in `user.component.ts`:
+
 ```ts
 @Component({
-  selector: 'app-user',
+  selector: "app-user",
   standalone: true,
   imports: [],
-  templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  templateUrl: "./user.component.html",
+  styleUrl: "./user.component.css",
 })
 export class UserComponent {
   selectedUser = DUMMY_USERS[randomUserIndex];
 
   get imagePath() {
-    return 'assets/users/' + this.selectedUser.avatar;
+    return "assets/users/" + this.selectedUser.avatar;
   }
 }
-
 ```
 
 so the `getter` method is just a function, and in JavaScript, I need to use `this` to access the property of the class.
 
 This way the template is cleaner:
+
 ```html
 <div>
-    <button>
-        <img 
-        [src]="imagePath"
-        [alt]="selectedUser.name" />
-        <span>{{ selectedUser.name }}</span>
-    </button>
+  <button>
+    <img [src]="imagePath" [alt]="selectedUser.name" />
+    <span>{{ selectedUser.name }}</span>
+  </button>
 </div>
 ```
 
 ### Listening to Events with Event Binding
 
 Adding an event listener to an element e.g. `(click)` to the `button`:
+
 ```html
 <div>
-    <button (click)="onSelectUser()">
-        <img 
-        [src]="imagePath"
-        [alt]="selectedUser.name" />
-        <span>{{ selectedUser.name }}</span>
-    </button>
+  <button (click)="onSelectUser()">
+    <img [src]="imagePath" [alt]="selectedUser.name" />
+    <span>{{ selectedUser.name }}</span>
+  </button>
 </div>
 ```
 
 Then, add a method to be called/executed upon some event using the `on` prefix, e.g. `onSelectUser`
+
 ```ts
 const randomUserIndex = Math.floor(Math.random() * DUMMY_USERS.length);
 
 @Component({
-  selector: 'app-user',
+  selector: "app-user",
   standalone: true,
   imports: [],
-  templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  templateUrl: "./user.component.html",
+  styleUrl: "./user.component.css",
 })
 export class UserComponent {
   selectedUser = DUMMY_USERS[randomUserIndex];
 
   get imagePath() {
-    return 'assets/users/' + this.selectedUser.avatar;
+    return "assets/users/" + this.selectedUser.avatar;
   }
 
   onSelectUser() {
-    console.log('Clicked!');
+    console.log("Clicked!");
   }
 }
 ```
@@ -452,21 +469,22 @@ Use `state` when the data has an impact on the UI.
 For example, the user info displayed in the button should be updated whenever the button is clicked.
 
 The most simple way of doing it is by simply updating the value of `selectedUser` like the below:
+
 ```ts
 const randomUserIndex = Math.floor(Math.random() * DUMMY_USERS.length);
 
 @Component({
-  selector: 'app-user',
+  selector: "app-user",
   standalone: true,
   imports: [],
-  templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  templateUrl: "./user.component.html",
+  styleUrl: "./user.component.css",
 })
 export class UserComponent {
   selectedUser = DUMMY_USERS[randomUserIndex];
 
   get imagePath() {
-    return 'assets/users/' + this.selectedUser.avatar;
+    return "assets/users/" + this.selectedUser.avatar;
   }
 
   onSelectUser() {
@@ -482,6 +500,7 @@ export class UserComponent {
 Under the hood Angular is using `zone.js` to detect changes. It listens to all the possible user events on the screen of a website.
 
 That's the reason why I can just re-assign the value of a property and Angular will update the UI automatically:
+
 ```ts
   onSelectUser() {
     const randomUserIndex = Math.floor(Math.random() * DUMMY_USERS.length);
@@ -506,11 +525,12 @@ Signals are trackable data containers. It notifies Angular when its value is cha
 Use `set()` to update the signal in `onSelectedUser()`.
 
 The `user.component.ts` is now like this:
+
 ```ts
-import { Component, signal } from '@angular/core';
+import { Component, signal } from "@angular/core";
 export class UserComponent {
   selectedUser = signal(DUMMY_USERS[randomUserIndex]);
-  
+
   onSelectUser() {
     const randomUserIndex = Math.floor(Math.random() * DUMMY_USERS.length);
     this.selectedUser.set(DUMMY_USERS[randomUserIndex]);
@@ -519,20 +539,20 @@ export class UserComponent {
 ```
 
 Then, call the signal value as a function in the template:
+
 ```html
 <div>
-    <button (click)="onSelectUser()">
-        <img 
-        [src]="imagePath"
-        [alt]="selectedUser().name" />
-        <span>{{ selectedUser().name }}</span>
-    </button>
+  <button (click)="onSelectUser()">
+    <img [src]="imagePath" [alt]="selectedUser().name" />
+    <span>{{ selectedUser().name }}</span>
+  </button>
 </div>
 ```
 
 In summary, using signals is more efficient than the old zone.js way.
 
 Another thing worth noted - so the computed value, `imagePath`, should be replaced as the below. Use `computed()` from the `angular/core`, and it takes in a function as an argument:
+
 ```ts
 // old
 get imagePath() {
@@ -545,22 +565,23 @@ imagePath = computed(() => 'assets/users/' + this.selectedUser().avatar);
 The idea is that Angular sets up a subscription that tracks the signals read inside the `computed` function. Angular only re-computes `imagePath` when `selectedUser` changes, because `selectedUser()` is the only signal read in that computed function.
 
 So the final UserComponent till now is like this:
+
 ```ts
-import { Component, computed, signal } from '@angular/core';
-import { DUMMY_USERS }  from '../dummy-users';
+import { Component, computed, signal } from "@angular/core";
+import { DUMMY_USERS } from "../dummy-users";
 
 const randomUserIndex = Math.floor(Math.random() * DUMMY_USERS.length);
 
 @Component({
-  selector: 'app-user',
+  selector: "app-user",
   standalone: true,
   imports: [],
-  templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  templateUrl: "./user.component.html",
+  styleUrl: "./user.component.css",
 })
 export class UserComponent {
   selectedUser = signal(DUMMY_USERS[randomUserIndex]);
-  imagePath = computed(() => 'assets/users/' + this.selectedUser().avatar);
+  imagePath = computed(() => "assets/users/" + this.selectedUser().avatar);
 
   onSelectUser() {
     const randomUserIndex = Math.floor(Math.random() * DUMMY_USERS.length);
@@ -570,14 +591,13 @@ export class UserComponent {
 ```
 
 In the template, make sure I "execute" this computed property at `[src]="imagePath()"` for `img` as under the hood the computed function actually creates a signal:
+
 ```html
 <div>
-    <button (click)="onSelectUser()">
-        <img 
-        [src]="imagePath()"
-        [alt]="selectedUser().name" />
-        <span>{{ selectedUser().name }}</span>
-    </button>
+  <button (click)="onSelectUser()">
+    <img [src]="imagePath()" [alt]="selectedUser().name" />
+    <span>{{ selectedUser().name }}</span>
+  </button>
 </div>
 ```
 
@@ -588,22 +608,23 @@ I can double check by hovering over `imagePath` in the `UserComponent`, it will 
 Instead of allowing UserComponent to set the `randomUserIndex`, I make it configurable i.e. expose properties that can be fed with data from the `AppComponent` level, so I can use the components but with different data.
 
 Current if I do this then all the userComponent will start with the same users:
+
 ```ts
-import { Component, computed, signal } from '@angular/core';
-import { DUMMY_USERS }  from '../dummy-users';
+import { Component, computed, signal } from "@angular/core";
+import { DUMMY_USERS } from "../dummy-users";
 
 const randomUserIndex = Math.floor(Math.random() * DUMMY_USERS.length);
 
 @Component({
-  selector: 'app-user',
+  selector: "app-user",
   standalone: true,
   imports: [],
-  templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  templateUrl: "./user.component.html",
+  styleUrl: "./user.component.css",
 })
 export class UserComponent {
   selectedUser = signal(DUMMY_USERS[randomUserIndex]);
-  imagePath = computed(() => 'assets/users/' + this.selectedUser().avatar);
+  imagePath = computed(() => "assets/users/" + this.selectedUser().avatar);
 
   onSelectUser() {
     const randomUserIndex = Math.floor(Math.random() * DUMMY_USERS.length);
@@ -613,10 +634,13 @@ export class UserComponent {
 ```
 
 Why?
+
 - The line that picks the random index sits outside the class, at the top of the file.
+
 ```ts
-const randomUserIndex = Math.floor(Math.random() * DUMMY_USERS.length);  // module scope
+const randomUserIndex = Math.floor(Math.random() * DUMMY_USERS.length); // module scope
 ```
+
 Code at that level runs once, when the file is first imported by the browser. It does not run again each time Angular creates a `UserComponent`. So `Math.random()` is called a single time, the result is frozen into that const, and every instance later reads the same frozen number.
 
 ```html
@@ -624,62 +648,63 @@ Code at that level runs once, when the file is first imported by the browser. It
 <app-header />
 
 <main>
-    <ul id="users">
-        <li>
-            <app-user />
-        </li>
-        <li>
-            <app-user />
-        </li>
-        <li>
-            <app-user />
-        </li>
-        <li>
-            <app-user />
-        </li>
-    </ul>
+  <ul id="users">
+    <li>
+      <app-user />
+    </li>
+    <li>
+      <app-user />
+    </li>
+    <li>
+      <app-user />
+    </li>
+    <li>
+      <app-user />
+    </li>
+  </ul>
 </main>
 ```
 
 ### Defining Component Inputs
 
 Create configurable properties using `@Input` in `UserComponent`:
+
 ```ts
-import { Component, Input } from '@angular/core';
+import { Component, Input } from "@angular/core";
 
 @Component({
-  selector: 'app-user',
+  selector: "app-user",
   standalone: true,
   imports: [],
-  templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  templateUrl: "./user.component.html",
+  styleUrl: "./user.component.css",
 })
 export class UserComponent {
   @Input() avatar!: string; // the ! is TypeScript's way of promising this property will always have a value
   @Input() name!: string;
 
   get imagePath() {
-    return 'assets/users/' + this.avatar; // using getter here as I'm not using signals in the image path anymore
+    return "assets/users/" + this.avatar; // using getter here as I'm not using signals in the image path anymore
   }
 
-  onSelectUser() {
-  }
+  onSelectUser() {}
 }
 ```
 
 And in `AppComponent` I need to create a property called `users` to have access to the dummy user data:
+
 ```ts
-import { Component } from '@angular/core';
-import { HeaderComponent } from './header/header.component';
-import { UserComponent } from './user/user.component';
-import { DUMMY_USERS }  from './dummy-users';
+import { Component } from "@angular/core";
+import { HeaderComponent } from "./header/header.component";
+import { UserComponent } from "./user/user.component";
+import { DUMMY_USERS } from "./dummy-users";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [HeaderComponent, UserComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  templateUrl: "./app.component.html",
+  styleUrl: "./app.component.css",
 })
 export class AppComponent {
   users = DUMMY_USERS;
@@ -687,36 +712,36 @@ export class AppComponent {
 ```
 
 So in the `AppComponent` template I can pass in the data from `AppComponent` into `UserComponent`:
+
 ```html
 <app-header />
 
 <main>
-    <ul id="users">
-        <li>
-            <app-user [avatar]="users[0].avatar" [name]="users[0].name" />
-        </li>
-        <li>
-            <app-user [avatar]="users[1].avatar" [name]="users[1].name" />
-        </li>
-        <li>
-            <app-user [avatar]="users[2].avatar" [name]="users[2].name" />
-        </li>
-        <li>
-            <app-user [avatar]="users[3].avatar" [name]="users[3].name" />
-        </li>
-    </ul>
+  <ul id="users">
+    <li>
+      <app-user [avatar]="users[0].avatar" [name]="users[0].name" />
+    </li>
+    <li>
+      <app-user [avatar]="users[1].avatar" [name]="users[1].name" />
+    </li>
+    <li>
+      <app-user [avatar]="users[2].avatar" [name]="users[2].name" />
+    </li>
+    <li>
+      <app-user [avatar]="users[3].avatar" [name]="users[3].name" />
+    </li>
+  </ul>
 </main>
 ```
 
 Finally, make sure `UserComponent` template replaced all the signals and computed value functions:
+
 ```html
 <div>
-    <button (click)="onSelectUser()">
-        <img 
-        [src]="imagePath"
-        [alt]="name" />
-        <span>{{ name }}</span>
-    </button>
+  <button (click)="onSelectUser()">
+    <img [src]="imagePath" [alt]="name" />
+    <span>{{ name }}</span>
+  </button>
 </div>
 ```
 
@@ -725,30 +750,31 @@ I now get a list of users on the screen and every user outputs some different da
 ### Required & Optional Inputs
 
 Use this required configuration object with the `@Input` i.e. `@Input({required: true})` to align with what I tell TypeScript so that a name or avatar of a user won't be missing in the `AppComponent`:
+
 ```ts
-import { Component, Input } from '@angular/core';
+import { Component, Input } from "@angular/core";
 
 @Component({
-  selector: 'app-user',
+  selector: "app-user",
   standalone: true,
   imports: [],
-  templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  templateUrl: "./user.component.html",
+  styleUrl: "./user.component.css",
 })
 export class UserComponent {
-  @Input({required: true}) avatar!: string;
-  @Input({required: true}) name!: string;
+  @Input({ required: true }) avatar!: string;
+  @Input({ required: true }) name!: string;
 
   get imagePath() {
-    return 'assets/users/' + this.avatar;
+    return "assets/users/" + this.avatar;
   }
 
-  onSelectUser() {
-  }
+  onSelectUser() {}
 }
 ```
 
 E.g. If a `name` is missing in the `AppComponent` template, there will be a warning:
+
 ```html
 <!-- AppComponent template -->
 <!-- Warning: Required input 'name' from component UserComponent must be specified. -->
@@ -768,95 +794,91 @@ Hover over `avatar` it will show that it will produce a Input Signal which will 
 Then, I can make this input signal into required using `input.required()`. Then, with `<>`, I tell it about the type e.g. `input.required<string>()`. By using `input` we're setting values to the `name` and `avatar` properties, so I don't need to worry about telling TypeScript about `!`. I can change `imagePath` back to a computed value.
 
 ```ts
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input } from "@angular/core";
 
 @Component({
-  selector: 'app-user',
+  selector: "app-user",
   standalone: true,
   imports: [],
-  templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  templateUrl: "./user.component.html",
+  styleUrl: "./user.component.css",
 })
 export class UserComponent {
   avatar = input.required<string>();
   name = input.required<string>();
 
-  imagePath = computed(() => 'assets/users/' + this.avatar());
+  imagePath = computed(() => "assets/users/" + this.avatar());
 
-  onSelectUser() {
-  }
+  onSelectUser() {}
 }
 ```
 
 Also update the UserComponent template by calling signal function on `name`. Same for `imagePath`.
+
 ```html
- <div>
-    <button (click)="onSelectUser()">
-        <img 
-        [src]="imagePath()"
-        [alt]="name()" />
-        <span>{{ name() }}</span>
-    </button>
+<div>
+  <button (click)="onSelectUser()">
+    <img [src]="imagePath()" [alt]="name()" />
+    <span>{{ name() }}</span>
+  </button>
 </div>
 ```
 
 But to continue to current section the tutorial just change back to use `@Input` for now. Later in the course there will be more signals usage.
 
 ```ts
-import { Component, Input } from '@angular/core';
+import { Component, Input } from "@angular/core";
 
 @Component({
-  selector: 'app-user',
+  selector: "app-user",
   standalone: true,
   imports: [],
-  templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  templateUrl: "./user.component.html",
+  styleUrl: "./user.component.css",
 })
 export class UserComponent {
-  @Input({required: true}) avatar!: string;
-  @Input({required: true}) name!: string;
+  @Input({ required: true }) avatar!: string;
+  @Input({ required: true }) name!: string;
 
   get imagePath() {
-    return 'assets/users/' + this.avatar;
+    return "assets/users/" + this.avatar;
   }
 
-  onSelectUser() {
-  }
+  onSelectUser() {}
 }
 ```
 
 ```html
 <div>
-    <button (click)="onSelectUser()">
-        <img 
-        [src]="imagePath"
-        [alt]="name" />
-        <span>{{ name }}</span>
-    </button>
+  <button (click)="onSelectUser()">
+    <img [src]="imagePath" [alt]="name" />
+    <span>{{ name }}</span>
+  </button>
 </div>
 ```
 
 ### We Need Custom Events! Working with Outputs & Emitting Data
 
 For example, I can pass the selected user's `id` from the `UserComponent` back to the `AppComponent` by `EventEmitter()`, which is stored in `select`.
+
 ```ts
-import { Component, computed, EventEmitter, input, Input, Output } from '@angular/core';
+import { Component, computed, EventEmitter, input, Input, Output } from "@angular/core";
 
 @Component({
-  selector: 'app-user',
+  selector: "app-user",
   standalone: true,
   imports: [],
-  templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  templateUrl: "./user.component.html",
+  styleUrl: "./user.component.css",
 })
 export class UserComponent {
-  @Input({required: true}) avatar!: string;
-  @Input({required: true}) name!: string;
-  @Input({required: true}) id!: string;
+  @Input({ required: true }) avatar!: string;
+  @Input({ required: true }) name!: string;
+  @Input({ required: true }) id!: string;
   @Output() select = new EventEmitter(); // (select) in the parent template i.e. AppComponent must match @Output() select.
 
   get imagePath() {
-    return 'assets/users/' + this.avatar;
+    return "assets/users/" + this.avatar;
   }
 
   onSelectUser() {
@@ -866,18 +888,18 @@ export class UserComponent {
 ```
 
 Whereas the `UserComponent` template remains the same:
+
 ```html
 <div>
-    <button (click)="onSelectUser()">
-        <img 
-        [src]="imagePath"
-        [alt]="name" />
-        <span>{{ name }}</span>
-    </button>
+  <button (click)="onSelectUser()">
+    <img [src]="imagePath" [alt]="name" />
+    <span>{{ name }}</span>
+  </button>
 </div>
 ```
 
 For the `AppComponent` to listen to that event from `UserComponent`, add `(select)` in the `AppComponent` template:
+
 ```html
 <app-header />
 
@@ -900,30 +922,30 @@ For the `AppComponent` to listen to that event from `UserComponent`, add `(selec
 ```
 
 And `(select)` will call the `onSelectUser()` function in `AppComponent`:
+
 ```ts
-import { Component } from '@angular/core';
-import { HeaderComponent } from './header/header.component';
-import { UserComponent } from './user/user.component';
-import { DUMMY_USERS }  from './dummy-users';
+import { Component } from "@angular/core";
+import { HeaderComponent } from "./header/header.component";
+import { UserComponent } from "./user/user.component";
+import { DUMMY_USERS } from "./dummy-users";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [HeaderComponent, UserComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  templateUrl: "./app.component.html",
+  styleUrl: "./app.component.css",
 })
 export class AppComponent {
   users = DUMMY_USERS;
 
   onSelectUser(id: string) {
-    console.log('Selected user with id: ' + id);
+    console.log("Selected user with id: " + id);
   }
 }
 ```
 
 `$event` is a special object provided by Angular and that will hold the data/value that was emitted by the event I'm listening to.
-
 
 Now when I click on a User button e.g. the first user button, the dev tool console will print `Selected user with id: u1`.
 
@@ -932,15 +954,17 @@ Now when I click on a User button e.g. the first user button, the dev tool conso
 `@Output` might feel like acting same as `output()`, but `output()` is newer, safer and cleaner.
 
 The reason why `output()` exists is that:
+
 - Once inputs became `input()`, keeping `@Output()` would look odd. It would be weird to have inputs with `input()` and outputs with `@Output()`. The new signal-based authoring format is characterised by the absence of decorators. Mixing decorators and functions in one class is noise.
 - `output()` is type safe on `emit()`, cleans up on destroy, and drops the RxJS baggage (as `EventEmitter` extends an RxJS Subject). The old `EventEmitter.emit()` with `@Output` let you emit nothing when a value was required. `output()` catches this at compile time.
 
-Also,  `output()` gives `OutputEmitterRef`, not a signal.
+Also, `output()` gives `OutputEmitterRef`, not a signal.
 
 So these will work the same in this tutorial:
+
 ```ts
 // old
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from "@angular/core";
 
 export class UserComponent {
   @Output() select = new EventEmitter();
@@ -951,7 +975,7 @@ export class UserComponent {
 }
 
 // new
-import { Component, output } from '@angular/core';
+import { Component, output } from "@angular/core";
 
 export class UserComponent {
   select = output<string>(); // select is OutputEmitterRef<string>, if I hover over it
@@ -967,8 +991,9 @@ Later the tutorial is still using `@Output` as it was not common to see `output(
 ### Adding Extra Type Information To EventEmitter
 
 Adding type here for extra safety when using `@Output`:
+
 ```ts
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from "@angular/core";
 
 export class UserComponent {
   @Output() select = new EventEmitter<string>();
@@ -982,6 +1007,7 @@ export class UserComponent {
 ### Exercise: Create a Configurable Component
 
 In the project folder run this to create a new component and its other files and skip the .spec.ts file:
+
 ```bash
 ng g c tasks --skip-tests
 ```
@@ -993,26 +1019,26 @@ UserComponent button emit its id back to AppComponent. UserComponent got its id 
 TaskComponent got the selected user name based on the selected user id stored in AppComponent.
 
 ```ts
-import { Component } from '@angular/core';
-import { HeaderComponent } from './header/header.component';
-import { UserComponent } from './user/user.component';
-import { DUMMY_USERS }  from './dummy-users';
-import { TasksComponent } from './tasks/tasks.component';
+import { Component } from "@angular/core";
+import { HeaderComponent } from "./header/header.component";
+import { UserComponent } from "./user/user.component";
+import { DUMMY_USERS } from "./dummy-users";
+import { TasksComponent } from "./tasks/tasks.component";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [HeaderComponent, UserComponent, TasksComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  templateUrl: "./app.component.html",
+  styleUrl: "./app.component.css",
 })
 export class AppComponent {
   users = DUMMY_USERS;
-  selectedUserId = 'u1';
+  selectedUserId = "u1";
 
   //  The get in your code is a plain TypeScript getter that reruns every time, not a computed signal that caches its result.
   get selectedUser() {
-    return this.users.find(user => user.id === this.selectedUserId)!; 
+    return this.users.find((user) => user.id === this.selectedUserId)!;
     // The ! is the non-null assertion operator. It tells TypeScript: "trust me, this value is not null and not undefined."
   }
 
@@ -1023,6 +1049,7 @@ export class AppComponent {
 ```
 
 AppComponent's html:
+
 ```html
 <app-header />
 
@@ -1042,27 +1069,29 @@ AppComponent's html:
     </li>
   </ul>
 
-  <app-tasks [name]="selectedUser.name"/>
+  <app-tasks [name]="selectedUser.name" />
 </main>
 ```
 
 TasksComponent only needs to add `name` as a dynamic input property:
+
 ```ts
-import { Component, Input } from '@angular/core';
+import { Component, Input } from "@angular/core";
 
 @Component({
-  selector: 'app-tasks',
+  selector: "app-tasks",
   standalone: true,
   imports: [],
-  templateUrl: './tasks.component.html',
-  styleUrl: './tasks.component.css'
+  templateUrl: "./tasks.component.html",
+  styleUrl: "./tasks.component.css",
 })
 export class TasksComponent {
-  @Input({required: true}) name!: string;
+  @Input({ required: true }) name!: string;
 }
 ```
 
 TasksComponent's html:
+
 ```html
 <p>{{ name }}</p>
 ```
@@ -1074,11 +1103,13 @@ I guess eventually I can change everything into signals
 In `AppComponent`, I'm using `!` to tell TypeScript that there will be a value for `selectedUser`.
 
 If I remove the `!` in the `.find()` in the `get selectedUser()`, in `AppComponent`'s template here it will complain `Object is possibly 'undefined'.`:
+
 ```html
-<app-tasks [name]="selectedUser.name"/>
+<app-tasks [name]="selectedUser.name" />
 ```
 
 To solve that I can just add `?` in the template to tell it that when `selectedUser` is undefined use an empty string:
+
 ```ts
 // new
 export class AppComponent {
@@ -1093,6 +1124,7 @@ export class AppComponent {
 ```
 
 If I allow this in the `TaskComponent` like adding `?` to the `name` property, which means the value might not be initialised yet and that's ok:
+
 ```ts
 // new
 export class TasksComponent {
@@ -1101,16 +1133,19 @@ export class TasksComponent {
 ```
 
 Then, the new `AppComponent`'s template will be:
+
 ```html
-<app-tasks [name]="selectedUser ? selectedUser.name : ''"/>
+<app-tasks [name]="selectedUser ? selectedUser.name : ''" />
 ```
 
 or this:
+
 ```html
-<app-tasks [name]="selectedUser?.name"/>
+<app-tasks [name]="selectedUser?.name" />
 ```
 
-Or I can just allow `undefined` type to the `name` in the `TaskComponent` by using `|` which is an union type  operator:
+Or I can just allow `undefined` type to the `name` in the `TaskComponent` by using `|` which is an union type operator:
+
 ```ts
 export class TasksComponent {
   @Input() name: string | undefined; // it's the same when I use: @Input() name?: string;
@@ -1120,6 +1155,7 @@ export class TasksComponent {
 ### Accepting Objects As Inputs & Adding Appropriate Typings
 
 Now in `TasksComponent`, I'm using `?`:
+
 ```ts
 export class TasksComponent {
   @Input() name?: string;
@@ -1127,11 +1163,13 @@ export class TasksComponent {
 ```
 
 And it will show this when I hover over it:
+
 ```
 (property) TasksComponent.name?: string | undefined
 ```
 
 In `UserComponent` I'm simplifying the input properties as this:
+
 ```ts
 // old
 export class UserComponent {
@@ -1161,18 +1199,18 @@ export class UserComponent {
 ```
 
 And update `UserComponent`'s template accordingly:
+
 ```html
 <div>
-    <button (click)="onSelectUser()">
-        <img 
-        [src]="imagePath"
-        [alt]="user.name" />
-        <span>{{ user.name }}</span>
-    </button>
+  <button (click)="onSelectUser()">
+    <img [src]="imagePath" [alt]="user.name" />
+    <span>{{ user.name }}</span>
+  </button>
 </div>
 ```
 
 And update `AppComponent`'s template accordingly - instead of passing `id`, `name`, `avatar`, now I can just pass in `user`:
+
 ```html
 <app-user [user]="users[0]" (select)="onSelectUser($event)" />
 ```
@@ -1186,6 +1224,7 @@ I can use either `type` or `interface` to define the type of an object e.g. `Use
 The key difference is that `interface` can only be used to define the object type, but `type` can be used for other types.
 
 `UserComponent` and `type`:
+
 ```ts
 // old
 export class UserComponent {
@@ -1211,6 +1250,7 @@ export class UserComponent {
 ```
 
 `UserComponent` and `interface`:
+
 ```ts
 // new
 interface User {
@@ -1231,6 +1271,7 @@ export class UserComponent {
 Use `@for` in the `AppComponent`'s template to dynamically output the users.
 
 From this:
+
 ```html
 <ul id="users">
   <li>
@@ -1249,12 +1290,13 @@ From this:
 ```
 
 To this:
+
 ```html
 <ul id="users">
   @for(user of users; track user.id) {
-    <li>
-      <app-user [user]="user" (select)="onSelectUser($event)" />
-    </li>
+  <li>
+    <app-user [user]="user" (select)="onSelectUser($event)" />
+  </li>
   }
 </ul>
 ```
@@ -1266,6 +1308,7 @@ What is `track` expression: `track` is used by Angular to use that user id to ev
 I want to render the `task` component in the `AppComponent` only when there's a selected User.
 
 So if I update `selectedUserId` like this in the `AppComponent`:
+
 ```ts
 export class AppComponent {
   users = DUMMY_USERS;
@@ -1275,16 +1318,18 @@ export class AppComponent {
 ```
 
 In the `AppComponent`'s template I can change from this:
+
 ```html
-<app-tasks [name]="selectedUser ? selectedUser.name : ''"/>
+<app-tasks [name]="selectedUser ? selectedUser.name : ''" />
 ```
 
 To this to conditionally render by using `@if` and `@else` for fallback:
+
 ```html
 @if(selectedUser) {
-    <app-tasks [name]="selectedUser.name"/>  
+<app-tasks [name]="selectedUser.name" />
 } @else {
-  <p>Select a user to see their tasks!</p>
+<p>Select a user to see their tasks!</p>
 }
 ```
 
@@ -1299,6 +1344,7 @@ I don't need the `?` operator for `selectedUser.name` anymore as there will be `
 Moved from the decorator based inputs and outputs API to the signal based one.
 
 In `UserComponent`, the old code is commented out:
+
 ```javascript
 import { Component, EventEmitter, input, Input, output, Output } from '@angular/core';
 
@@ -1334,33 +1380,32 @@ export class UserComponent {
 ```
 
 In the `UserComponent`'s template now needs to access `user` like this:
+
 ```html
 <div>
-    <button (click)="onSelectUser()">
-        <img 
-        [src]="imagePath"
-        [alt]="user().name" />
-        <span>{{ user().name }}</span>
-    </button>
+  <button (click)="onSelectUser()">
+    <img [src]="imagePath" [alt]="user().name" />
+    <span>{{ user().name }}</span>
+  </button>
 </div>
 ```
 
 **The terms**
 
-* `input()` and `input.required()` are *signal inputs*, also called signal
+- `input()` and `input.required()` are _signal inputs_, also called signal
   based inputs. They return an `InputSignal<T>`.
-* Calling `this.user()` is *reading the signal*. A signal is a getter function,
+- Calling `this.user()` is _reading the signal_. A signal is a getter function,
   so the brackets are how you unwrap the current value.
-* A signal input is *read only* inside the child. Only the parent can set it.
+- A signal input is _read only_ inside the child. Only the parent can set it.
   The old decorator input was a writable property.
-* `output()` returns an `OutputEmitterRef<T>`. It is **not** a signal, because
+- `output()` returns an `OutputEmitterRef<T>`. It is **not** a signal, because
   an event is a notification, not a piece of state. It replaces
   `EventEmitter`, and Angular handles the cleanup on destroy.
-* The `!` in `user!: User` is TypeScript's *definite assignment assertion*.
+- The `!` in `user!: User` is TypeScript's _definite assignment assertion_.
   It promises the value will exist, without proving it. A required signal
   input removes the need for it, since Angular fails the build when a parent
   omits the binding.
-* The *public template API* of the component did not change. The parent still
+- The _public template API_ of the component did not change. The parent still
   writes `[user]` and `(select)`. Only the internals moved.
 
 **Why**
@@ -1384,7 +1429,6 @@ run later.
 
 Added `TaskComponent` under `TasksComponent`.
 
-
 ### Outputting User-specific Tasks
 
 He's using `get` this getter to work with a computed property, e.g. `selectedUserTasks`.
@@ -1398,6 +1442,7 @@ I also moved the dummy tasks data to a constant file, similar to the dummy users
 ### Outputting Task Data in the Task Component
 
 In this `TaskComponent`, I'm using the `@Input` decorator to define property instead of input signal as I notice that in my current workplace I will see this too:
+
 ```javascript
 import { Component, Input } from '@angular/core';
 
@@ -1432,10 +1477,11 @@ export interface User {
   id: string;
   name: string;
   avatar: string;
-};
+}
 ```
 
 Then `import` in the `UserComponent`:
+
 ```javascript
 import { type User } from './user.model';
 ```
@@ -1445,6 +1491,7 @@ import { type User } from './user.model';
 When we selected a user in the `AppComponent`, we want to pass the `selected` status to the `UserComponent` to highlight it with purple.
 
 So we add a new property in the `UserComponent` called `selected` and it's a `boolean`value:
+
 ```ts
 export class UserComponent {
   user = input.required<User>();
@@ -1453,16 +1500,19 @@ export class UserComponent {
 ```
 
 Then in the `AppComponent` add that `selected` property to the `app-user` tag:
+
 ```html
-  <ul id="users">
-    @for(user of users; track user.id) {
-      <li>
-        <app-user [user]="user" [selected]="user.id === selectedUserId" (select)="onSelectUser($event)" />
-      </li>
-    }
+<ul id="users">
+  @for(user of users; track user.id) {
+  <li>
+    <app-user [user]="user" [selected]="user.id === selectedUserId" (select)="onSelectUser($event)" />
+  </li>
+  }
+</ul>
 ```
 
 `UserComponent` has this styling:
+
 ```css
 .active {
   background-color: #9965dd;
@@ -1471,6 +1521,7 @@ Then in the `AppComponent` add that `selected` property to the `app-user` tag:
 ```
 
 `UserComponent` template can add this class binding like this:
+
 ```html
 <div>
     <button [class.active]="selected" (click)="onSelectUser()">
@@ -1479,34 +1530,35 @@ Then in the `AppComponent` add that `selected` property to the `app-user` tag:
 
 So when the button is `active` i.e. true, then the colour will be applied to the button.
 
-
 ### More Component Communication: Deleting Tasks
 
 Similar to `UserComponent` capture the `select` event, the `TaskComponent` now has a `complete` event that it will emit the task id bac kto the `TasksComponent`.
 
 `TaskComponent` template:
+
 ```html
 <article>
-    <h2>{{ task.title }}</h2>
-    <time>{{ task.dueDate }}</time>
-    <p>{{ task.summary }}</p>
-    <p class="actions">
-        <button (click)="onCompleteTask()">Complete</button>
-    </p>
+  <h2>{{ task.title }}</h2>
+  <time>{{ task.dueDate }}</time>
+  <p>{{ task.summary }}</p>
+  <p class="actions">
+    <button (click)="onCompleteTask()">Complete</button>
+  </p>
 </article>
 ```
 
 `TaskComponent` see `onCompleteTask()`:
+
 ```ts
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { type Task } from './task.model';
+import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { type Task } from "./task.model";
 
 @Component({
-  selector: 'app-task',
+  selector: "app-task",
   standalone: true,
   imports: [],
-  templateUrl: './task.component.html',
-  styleUrl: './task.component.css'
+  templateUrl: "./task.component.html",
+  styleUrl: "./task.component.css",
 })
 export class TaskComponent {
   @Input({ required: true }) task!: Task;
@@ -1519,6 +1571,7 @@ export class TaskComponent {
 ```
 
 `TasksComponent` template should make sure to capture the emitted data from `TaskComponent` i.e. the task id. See `(complete)`:
+
 ```ts
 <section id="tasks">
   <header>
@@ -1532,23 +1585,24 @@ export class TaskComponent {
         <li>
             <app-task [task]="task" (complete)="onCompleteTask($event)"></app-task>
         </li>
-    } 
+    }
   </ul>
 </section>
 ```
 
 And finally, `TasksComponent` should only show all the tasks EXCEPT the completed task's id. See `onCompleteTask`:
+
 ```ts
-import { Component, input, Input } from '@angular/core';
-import { TaskComponent } from './task/task.component';
-import { DUMMY_TASKS } from '../dummy-tasks';
+import { Component, input, Input } from "@angular/core";
+import { TaskComponent } from "./task/task.component";
+import { DUMMY_TASKS } from "../dummy-tasks";
 
 @Component({
-  selector: 'app-tasks',
+  selector: "app-tasks",
   standalone: true,
   imports: [TaskComponent],
-  templateUrl: './tasks.component.html',
-  styleUrl: './tasks.component.css'
+  templateUrl: "./tasks.component.html",
+  styleUrl: "./tasks.component.css",
 })
 export class TasksComponent {
   userId = input.required<String>();
@@ -1568,6 +1622,7 @@ export class TasksComponent {
 ### Creating & Conditionally Rendering Another Component
 
 Run:
+
 ```bash
 ng g c tasks/new-task --skip-tests
 ```
@@ -1575,9 +1630,10 @@ ng g c tasks/new-task --skip-tests
 In `TasksComponent`, add a click listener on the `Add Task` to call this `onStartAddTask()`, which will set true to the `isAddingTask` flag, so we can see the `NewTaskComponent` conditionally.
 
 `TasksComponent` template:
+
 ```html
 @if(isAddingTask) {
-  <app-new-task />
+<app-new-task />
 }
 
 <section id="tasks">
@@ -1592,6 +1648,7 @@ In `TasksComponent`, add a click listener on the `Add Task` to call this `onStar
 ```
 
 `TasksComponent`:
+
 ```ts
 
 @Component({
@@ -1636,15 +1693,15 @@ In `TasksComponent` template, `NewTasksComponent` can have `cancel` custom event
 
 ```ts
 @Component({
-  selector: 'app-new-task',
+  selector: "app-new-task",
   standalone: true,
   imports: [],
-  templateUrl: './new-task.component.html',
-  styleUrl: './new-task.component.css'
+  templateUrl: "./new-task.component.html",
+  styleUrl: "./new-task.component.css",
 })
 export class NewTaskComponent {
   @Output() cancel = new EventEmitter<void>(); // void: as the output event emitter is not emitting any data
-  
+
   onCancel() {
     this.cancel.emit();
   }
@@ -1653,13 +1710,13 @@ export class NewTaskComponent {
 
 `@Output() cancel` is the bell button wired up inside the house. `this.cancel.emit()` is someone pressing it. And `(cancel)="onCancelAddTask()"` in the parent is you saying "when that bell rings, I will go answer the door".
 
-You may also hear people say the child "emits an event up to the parent". That is the general pattern name: child to parent communication. 
+You may also hear people say the child "emits an event up to the parent". That is the general pattern name: child to parent communication.
 
 It will emit `void`, which will then trigger `onCancelAddTask()`.
 
 ```html
 @if(isAddingTask) {
-  <app-new-task (cancel)="onCancelAddTask()"/>
+<app-new-task (cancel)="onCancelAddTask()" />
 }
 
 <section id="tasks">
@@ -1671,17 +1728,18 @@ It will emit `void`, which will then trigger `onCancelAddTask()`.
   </header>
   <ul>
     @for(task of selectedUserTasks; track task.id) {
-        <li>
-            <app-task [task]="task" (complete)="onCompleteTask($event)"></app-task>
-        </li>
-    } 
+    <li>
+      <app-task [task]="task" (complete)="onCompleteTask($event)"></app-task>
+    </li>
+    }
   </ul>
 </section>
 ```
 
 The reverse direction, `[task]="task"` in your `app-task` line, is property binding using an input property.
 
-A coupld of things in the `NewTaskComponent` template: 
+A coupld of things in the `NewTaskComponent` template:
+
 - Make sure the backdrop and the cancel button of the `NewTaskComponent` template both places had added the click listener.
 - Note that the cancel button is of `button` type so that it won't accidentally submit the form when it's clicked.
 
@@ -1726,6 +1784,7 @@ For example, `<input ngModel>` where `ngModel` helps with extracting or changing
 Component are directives just that they are directives with templates.
 
 I'm setting a two-way binding on this `enteredTitle` property. In order to use that `ngModel` directive in the `NewTaskComponent` template, I need to import the `FormModule` first:
+
 ```ts
 @Component({
   selector: 'app-new-task',
@@ -1736,11 +1795,13 @@ I'm setting a two-way binding on this `enteredTitle` property. In order to use t
 ```
 
 Then, `NewTaskComponent` template:
+
 ```html
-<input type="text" id="title" name="title" [(ngModel)]="enteredTitle"/>
+<input type="text" id="title" name="title" [(ngModel)]="enteredTitle" />
 ```
 
 And add the `enteredTitle` property to the `NewTaskComponent`:
+
 ```ts
 @Component({
   selector: 'app-new-task',
@@ -1752,9 +1813,37 @@ And add the `enteredTitle` property to the `NewTaskComponent`:
 export class NewTaskComponent {
   @Output() cancel = new EventEmitter<void>();
   enteredTitle = '';
+  enteredSummary = '';
+  enteredDate = '';
 ```
 
 Note that the input even with the type as date, it will still give me a string value, not a date object:
+
 ```html
 <input type="date" />
 ```
+
+### Signals & Two-way-binding
+
+I can just make those properties into signals and the ngModel directives will know they're now signals, so in the template I don't need to change anything:
+```ts
+export class NewTaskComponent {
+  @Output() cancel = new EventEmitter<void>();
+  enteredTitle = signal('');
+  enteredSummary = signal('');
+  enteredDate = signal('');
+```
+
+So template remains as this:
+```html
+<input type="text" id="title" name="title" [(ngModel)]="enteredTitle" />
+<textarea id="summary" rows="5" name="summary" [(ngModel)]="enteredSummary"></textarea>
+etc.
+```
+
+not this:
+```html
+<input type="text" id="title" name="title" [(ngModel)]="enteredTitle()" />
+```
+
+but the rest of this exercise will not be using signals for these three properties. He just demonstrated that this will work.
