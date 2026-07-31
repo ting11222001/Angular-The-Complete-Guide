@@ -1712,3 +1712,49 @@ A coupld of things in the `NewTaskComponent` template:
   </form>
 </dialog>
 ```
+
+### Using Directives & Two-Way-Binding
+
+Now I need to get the input value when the form is submitted.
+
+So I need to use `ngModel` to do two-way-binding to do the data binding.
+
+With angular, we can "enhance" elements by adding "Directives" to them.
+
+For example, `<input ngModel>` where `ngModel` helps with extracting or changing user input values.
+
+Component are directives just that they are directives with templates.
+
+I'm setting a two-way binding on this `enteredTitle` property. In order to use that `ngModel` directive in the `NewTaskComponent` template, I need to import the `FormModule` first:
+```ts
+@Component({
+  selector: 'app-new-task',
+  standalone: true,
+  imports: [FormsModule],
+...
+})
+```
+
+Then, `NewTaskComponent` template:
+```html
+<input type="text" id="title" name="title" [(ngModel)]="enteredTitle"/>
+```
+
+And add the `enteredTitle` property to the `NewTaskComponent`:
+```ts
+@Component({
+  selector: 'app-new-task',
+  standalone: true,
+  imports: [FormsModule],
+  templateUrl: './new-task.component.html',
+  styleUrl: './new-task.component.css'
+})
+export class NewTaskComponent {
+  @Output() cancel = new EventEmitter<void>();
+  enteredTitle = '';
+```
+
+Note that the input even with the type as date, it will still give me a string value, not a date object:
+```html
+<input type="date" />
+```
