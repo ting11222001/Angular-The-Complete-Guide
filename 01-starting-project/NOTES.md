@@ -1860,3 +1860,88 @@ The `FormsModule` takes control of the `<form>` element and allows us to listen 
 ```
 
 And add `onSubmit()` to the `NewTaskComponent`.
+
+### Using the Submitted data
+
+`NewTaskComponent` will emit the submit event that pass a data object:
+```html
+<form (ngSubmit)="onSubmit()">
+```
+
+```ts
+export class NewTaskComponent {
+  @Output() cancel = new EventEmitter<void>();
+  @Output() add = new EventEmitter<NewTaskData>();
+  enteredTitle = '';
+  enteredSummary = '';
+  enteredDate = '';
+  
+  onCancel() {
+    this.cancel.emit();
+  }
+
+  onSubmit() {
+    this.add.emit({
+      title: this.enteredTitle,
+      summary: this.enteredSummary,
+      date: this.enteredDate
+    });
+  }
+}
+```
+
+The shape of the data object is called `NewTaskData` exported from a dedicated file `task.model.ts`:
+```ts
+export interface NewTaskData {
+  title: string;
+  summary: string;
+  date: string;
+}
+```
+
+`TasksComponent` is where the local task array data is at, so it needs to listen to the `NewTaskComponent` custom event, `add()`, and call its `onAddTask()` accordingly:
+
+```html
+@if(isAddingTask) {
+  <app-new-task (cancel)="onCancelAddTask()" (add)="onAddTask($event)"/>
+}
+```
+
+```ts
+export class TasksComponent {
+  @Input({ required: true }) userId!: string; // I've changed this back to use decorators
+  @Input({ required: true }) name!: string;   // I've changed this back to use decorators
+  tasks = DUMMY_TASKS;
+  isAddingTask = false;
+
+  get selectedUserTasks() {
+    return this.tasks.filter((task) => task.userId === this.userId);
+  }
+
+  onCompleteTask(taskId: string) {
+    this.tasks = this.tasks.filter((task) => task.id !== taskId);
+  }
+
+  onStartAddTask() {
+    this.isAddingTask = true;
+  }
+
+  onCancelAddTask() {
+    this.isAddingTask = false;
+  }
+
+  onAddTask(newTaskData: NewTaskData) {
+    // In a real application, you would typically send the new task data to a backend service here
+    // For demonstration purposes, I'm just adding it to the local tasks array
+    // Use the built-in method in JavaScript to add the task to the top of the array
+    this.tasks.unshift({
+      id: new Date().getTime().toString(), // use timestamp as a unique id for the new task
+      userId: this.userId,
+      title: newTaskData.title,
+      summary: newTaskData.summary,
+      dueDate: newTaskData.date,
+    });
+    this.isAddingTask = false; // close the form after adding a new task
+  }
+
+```
