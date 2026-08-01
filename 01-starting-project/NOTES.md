@@ -1943,5 +1943,8 @@ export class TasksComponent {
     });
     this.isAddingTask = false; // close the form after adding a new task
   }
-
 ```
+
+Until now, I can add a new task to each user!
+
+### Content Projection with ng-content
