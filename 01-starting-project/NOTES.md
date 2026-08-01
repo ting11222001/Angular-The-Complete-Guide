@@ -1948,3 +1948,69 @@ export class TasksComponent {
 Until now, I can add a new task to each user!
 
 ### Content Projection with ng-content
+
+Now I want to each task card has a specific styling. 
+
+So I'm learning to create a shared component called `CardComponent` in the `src/app/shared` folder.
+
+```bash
+cd 01-starting-project/src/app
+
+ng g c shared/card --skip-tests
+```
+
+Refer to the `UserComponent` css here and move this to `CardComponent` css file:
+```css
+div {
+  border-radius: 6px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+```
+
+And make the template of the `CardComponent` to be just like this:
+```html
+<div>...</div>
+```
+
+Then, apply this `CardComponent` to be a wrapper of the `UserComponent`.
+
+So in the `UserComponent`, replace the outer `div` with the `app-card` elements:
+```html
+<!-- old -->
+<div>
+    <button [class.active]="selected" (click)="onSelectUser()">
+        <img 
+        [src]="imagePath"
+        [alt]="user().name" />
+        <span>{{ user().name }}</span>
+    </button>
+</div>
+
+<!-- new -->
+<app-card>
+    <button [class.active]="selected" (click)="onSelectUser()">
+        <img 
+        [src]="imagePath"
+        [alt]="user().name" />
+        <span>{{ user().name }}</span>
+    </button>
+</app-card>
+```
+
+But now all the `UserComponents` will become just `...`, as Angular here just uses the markup of the new template from `app-card`. The `button` part aka the old markup will be replaced.
+
+So add this `ng-content` to the wrapping component, `CardComponent`, template:
+```html
+<div>
+    <ng-content />
+</div>
+```
+
+Now each user button has the right names and the outer card has rounded corner now.
+
+I can use this `CardComponent` to other components too like to the `TaskComponent`.
+
+Remember to import the `CardComponent` to the `UserComponent`, `TaskComponent`, etc. when I'm using it!
+
+### Transforming Template Data with Pipes
