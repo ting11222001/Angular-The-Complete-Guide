@@ -1847,3 +1847,16 @@ not this:
 ```
 
 but the rest of this exercise will not be using signals for these three properties. He just demonstrated that this will work.
+
+### Handling Form Submission
+
+When we use the `FormsModule` from angular, it automatically prevents the browser to send a request with the form data to the browser for us. Our local development server only handles the `index.html` file.
+
+The `FormsModule` takes control of the `<form>` element and allows us to listen with the `ngSubmit` event which will occur when that form submission happened and that browser default was prevented.
+
+`NewTaskComponent` template:
+```html
+  <form (ngSubmit)="onSubmit()">
+```
+
+And add `onSubmit()` to the `NewTaskComponent`.
