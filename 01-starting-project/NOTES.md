@@ -2014,3 +2014,22 @@ I can use this `CardComponent` to other components too like to the `TaskComponen
 Remember to import the `CardComponent` to the `UserComponent`, `TaskComponent`, etc. when I'm using it!
 
 ### Transforming Template Data with Pipes
+
+In `TaskComponent`, I used the built-in `date pipe` which will format the date in a human readable way.
+
+Refer to the doc about `DatePipe` [here](!https://angular.dev/api/common/DatePipe).
+
+```html
+<app-card>
+    <article>
+        <h2>{{ task.title }}</h2>
+        <time>{{ task.dueDate | date: 'fullDate' }}</time>
+        <p>{{ task.summary }}</p>
+        <p class="actions">
+            <button (click)="onCompleteTask()">Complete</button>
+        </p>
+    </article>
+</app-card>
+```
+
+This will give me `Saturday, June 15, 2024` instead of the default `May 31, 2024`.
