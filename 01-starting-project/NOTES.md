@@ -2033,3 +2033,205 @@ Refer to the doc about `DatePipe` [here](!https://angular.dev/api/common/DatePip
 ```
 
 This will give me `Saturday, June 15, 2024` instead of the default `May 31, 2024`.
+
+### Getting Started with Services
+
+So far all the features are ready.
+
+But I should keep my components as lean as possible. I should use a `service` to manage the data that will be used in multiple places in the app.
+
+For example, `TasksComponent`'s task data should be moved to a dedicated service class.
+
+Create `src\app\tasks\tasks.service.ts`. Start outsourcing all the task's data management related logic to here e.g. the dummy tasks data, and several functions of getting, adding and removing tasks.
+
+So now `TasksService` looks like this:
+```ts
+import { type NewTaskData } from "./task/task.model"; // add `type` keyword to make it clear that it's an interface
+
+export class TasksService {
+    private tasks = [
+        {
+            id: 't1',
+            userId: 'u1',
+            title: 'Master Angular',
+            summary:
+            'Learn all the basic and advanced features of Angular & how to apply them.',
+            dueDate: '2025-12-31',
+        },
+        {
+            id: 't2',
+            userId: 'u3',
+            title: 'Build first prototype',
+            summary: 'Build a first prototype of the online shop website',
+            dueDate: '2024-05-31',
+        },
+        {
+            id: 't3',
+            userId: 'u3',
+            title: 'Prepare issue template',
+            summary:
+            'Prepare and describe an issue template which will help with project management',
+            dueDate: '2024-06-15',
+        },
+    ];
+
+    getUserTasks(userId: string) {
+        return this.tasks.filter((task) => task.userId === userId);
+    }
+
+    addTask(userId: string, newTaskData: NewTaskData) {
+        this.tasks.unshift({
+            id: new Date().getTime().toString(), // use timestamp as a unique id for the new task
+            userId: userId,
+            title: newTaskData.title,
+            summary: newTaskData.summary,
+            dueDate: newTaskData.date,
+        });
+    }
+
+    removeTask(taskId: string) {
+        this.tasks = this.tasks.filter((task) => task.id !== taskId);
+    }
+}
+```
+
+### Getting Started with Dependency Injection
+
+If I just do this, it will be a huge problem as I'm creating a separate independent instance of this service for this `TasksComponent` only, so if the data in the `TasksService` had been changed by other components, then the new change will noe be reflected in `TasksComponent`:
+```ts
+export class TasksComponent {
+  @Input({ required: true }) userId!: string;
+  @Input({ required: true }) name!: string;
+  tasks = DUMMY_TASKS;
+  isAddingTask = false;
+  private tasksService = new TasksService(); // here :(
+
+  get selectedUserTasks() {
+    return this.tasksService.getUserTasks(this.userId);
+  }
+
+  onCompleteTask(taskId: string) {
+    this.tasksService.removeTask(taskId);
+  }
+```
+
+So I need to use `Dependency Injection` along with this concept of `service`.
+
+Basically, I don't create an instance on my own. I tell Angular to create it for me. Angular can create it once and this instance can be used in different components in the app.
+
+Replace that private property with a constructor, which will be instantiated when this `TasksComponent` class is created.
+```ts
+@Component({
+  selector: 'app-tasks',
+  standalone: true,
+  imports: [TaskComponent, NewTaskComponent],
+  templateUrl: './tasks.component.html',
+  styleUrl: './tasks.component.css'
+})
+export class TasksComponent {
+  @Input({ required: true }) userId!: string;
+  @Input({ required: true }) name!: string;
+  isAddingTask = false;
+
+  constructor(private tasksService: TasksService) {} // here :)
+
+  get selectedUserTasks() {
+    return this.tasksService.getUserTasks(this.userId); // updated to use TasksService instead
+  }
+
+  onCompleteTask(taskId: string) {
+    this.tasksService.removeTask(taskId); // updated to use TasksService instead
+  }
+
+  onStartAddTask() {
+    this.isAddingTask = true;
+  }
+
+  onCancelAddTask() {
+    this.isAddingTask = false;
+  }
+}
+```
+
+Actually writing that `private tasksService` is a shorthand in TypeScript where it creates property of the same name `tasksService`.
+
+And then add this decorator to `TasksService` class to make it injectable.
+
+```ts
+@Injectable({ providedIn: 'root'})
+export class TasksService {
+  ...
+```
+
+### More Service Usage & Alternative Dependency Injection Mechanism
+
+Other than the `TasksComponent`, I can also use service in the `NewTasksComponent`.
+
+So in the `NewTasksComponent`, instead of emitting the new task data to update the local tasks array in the parent component, `TasksComponent`, I can directly update and add the tasks data from the child component, `NewTasksComponent` there (ofc it only works after I inject the `TasksService`):
+
+```ts
+@Component({
+  selector: 'app-new-task',
+  standalone: true,
+  imports: [FormsModule],
+  templateUrl: './new-task.component.html',
+  styleUrl: './new-task.component.css'
+})
+export class NewTaskComponent {
+  @Input({ required: true}) userId!: string; // added for this.tasksService.addTask()
+  @Output() close = new EventEmitter<void>(); // even though now I can use TasksService to add a new task, I still want to emit the new task data to the parent component (TasksComponent) to close the dialog 
+  enteredTitle = '';
+  enteredSummary = '';
+  enteredDate = '';
+  private tasksService = inject(TasksService); // another way to write the dependency injection for the TasksService
+
+  onCancel() {
+    this.close.emit();
+  }
+
+  onSubmit() {
+    this.tasksService.addTask(this.userId, {
+      title: this.enteredTitle,
+      summary: this.enteredSummary,
+      date: this.enteredDate
+    });
+    this.close.emit();
+  }
+}
+```
+
+I also removed the `add` output event as I no longer need to emit the new task data to update the tasks, and also change the `cancel` output event to a more generic name as `close`, so this child component, `NewTasksComponent`, can still let the parent component, `TasksComponent`, know that this child component is ready to be closed (it's a dialog to be closed after a task is clicked with the created or the cancelled button).
+
+Another minor change - `onCancelAddTask()` is also updated to `onCloseAddTask()`:
+```ts
+@Component({
+  selector: 'app-tasks',
+  standalone: true,
+  imports: [TaskComponent, NewTaskComponent],
+  templateUrl: './tasks.component.html',
+  styleUrl: './tasks.component.css'
+})
+export class TasksComponent {
+  @Input({ required: true }) userId!: string;
+  @Input({ required: true }) name!: string;
+  isAddingTask = false;
+
+  constructor(private tasksService: TasksService) {}
+
+  get selectedUserTasks() {
+    return this.tasksService.getUserTasks(this.userId);
+  }
+
+  onCompleteTask(taskId: string) {
+    this.tasksService.removeTask(taskId);
+  }
+
+  onStartAddTask() {
+    this.isAddingTask = true;
+  }
+
+  onCloseAddTask() {  // updated!
+    this.isAddingTask = false;
+  }
+}
+```
