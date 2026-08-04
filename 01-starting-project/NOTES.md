@@ -2379,4 +2379,24 @@ The key thing I learned is that the `saveTasks()` actually save the whole update
 localStorage.setItem('tasks', JSON.stringify(this.tasks));
 ```
 
-To test the local storage, one way is to clear it entirely - I can go to dev tool > application tab > Local storage > right click on the key name, `tasks`, to delete it.
+### Module Summary
+
+I was creating component tree to faster development workflow, practice how the parent components can talk to the child components using `@Input` and the child components can talk back to the parent components using `@Output`. 
+
+Template binding for dynamic data display e.g. string interpolation. 
+
+Property binding to set the property of an element in the template. 
+
+Event binding allows elements to listen to events so it knows what to execute when the event occurs.
+
+Two-way binding for the form inputs setup by `ngModel` directive from `FormsModule` to setup two-way communication on an `Input` element.
+
+Whenever I want to change the UI, there are two ways:
+- with zone.js, update some data in the `TasksComponent` with `isAddingTask = false;`, and output that data in the template using some template binding features e.g. `{{ name }}` in the `TasksComponent` template, and Angular will figure out the rest 
+- with signal, I can explicitly tell Angular that there is a change. Angular will set up a subscription when I read the signal e.g. `user()` in the `UserComponent` template. This will lead to better state management mechanism and better performance.
+
+Control flow block, `@if` and `@for`, and `@for` are helpful and common to use nowadays since angular 17+.
+
+Use `ng-content` to create a slot in the markup of a template to render the content that's passed between the tags of that component.
+
+Other important concepts: `pipe`, `ngSubmit()` and `services` (with dependency injection).
