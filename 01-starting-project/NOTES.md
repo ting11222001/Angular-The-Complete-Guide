@@ -2235,3 +2235,57 @@ export class TasksComponent {
   }
 }
 ```
+
+#### The service is a single shared object
+
+In `TasksService`, `@Injectable({ providedIn: 'root' })` tells Angular to create one instance of `TasksService` for the whole app. Every component that asks for it gets the same object.
+
+So think of `tasks` as one shared notebook sitting on a desk. Anyone who writes in it changes the notebook everyone else reads.
+
+#### `unshift` writes into that notebook
+
+`this.tasks.unshift(...)` does not make a copy. It adds the new task to the front of the existing array. The private property now points to a list with one extra item, and it stays that way until the app stops.
+
+
+#### `filter` builds a brand new array
+
+`removeTask` does something slightly different. `filter` builds a brand new array, then `this.tasks = ...` swaps the old notebook for the new one.
+
+#### Why this is not "forever"
+
+The array lives in memory only. It was written directly into the class as a starting value. When you refresh the page, the browser throws away all the JavaScript memory, Angular starts again, and the class field is created fresh from that original list of three tasks. Your added task is gone. Your removed task is back.
+
+To make it survive a refresh you need to save it somewhere outside memory. In a small learning project that is usually `localStorage`. In a real app it is a backend API and a database.
+
+### Time to Practice: Services
+
+Remove the `complete` output event from `TaskComponent`, so I don't need to pass on the `taskId` to the `TasksComponent`, the parent component, and do `onCompleteTask()` there.
+
+Instead now I can directly run `onCompleteTask()` in the child compoennt, `TaskCompoent`, here as now it has access directly to the `TasksService`.
+
+```ts
+@Component({
+  selector: 'app-task',
+  standalone: true,
+  imports: [CardComponent, DatePipe],
+  templateUrl: './task.component.html',
+  styleUrl: './task.component.css'
+})
+export class TaskComponent {
+  @Input({ required: true }) task!: Task;
+  private tasksService = inject(TasksService); // updated!
+  
+  onCompleteTask() {
+    this.tasksService.removeTask(this.task.id); // updated!
+  }
+}
+```
+
+And in the parent `TasksComponent` I don't need it to listen to the `complete` event anymore, so everything is cleaner:
+```html
+@for(task of selectedUserTasks; track task.id) {
+    <li>
+        <app-task [task]="task"></app-task>
+    </li>
+} 
+```
