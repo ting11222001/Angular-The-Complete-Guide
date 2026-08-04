@@ -2289,3 +2289,94 @@ And in the parent `TasksComponent` I don't need it to listen to the `complete` e
     </li>
 } 
 ```
+
+### Using localStorage for Data Storage
+
+Moving the tasks data in the `TasksService` into `localStorage` for now.
+
+Use a `constructor` in the `TasksService` to make sure it will check if the tasks data exists in the local storage when the app is up.
+
+Since the local storage can only save values in strings, I will need to parse it into json format before using it.
+
+Then, whenever I add or remove a task, it has to update the local storage accordingly. This step will need me to convert the json data format into string format in order to get into the local storage.
+
+```ts
+import { type NewTaskData } from "./task/task.model";
+import { Injectable } from "@angular/core";
+
+@Injectable({ providedIn: 'root'})
+export class TasksService {
+    private tasks = [
+        {
+            id: 't1',
+            userId: 'u1',
+            title: 'Master Angular',
+            summary:
+            'Learn all the basic and advanced features of Angular & how to apply them.',
+            dueDate: '2025-12-31',
+        },
+        {
+            id: 't2',
+            userId: 'u3',
+            title: 'Build first prototype',
+            summary: 'Build a first prototype of the online shop website',
+            dueDate: '2024-05-31',
+        },
+        {
+            id: 't3',
+            userId: 'u3',
+            title: 'Prepare issue template',
+            summary:
+            'Prepare and describe an issue template which will help with project management',
+            dueDate: '2024-06-15',
+        },
+    ];
+
+    constructor() {
+        const tasks = localStorage.getItem('tasks');
+        if (tasks) {
+            this.tasks = JSON.parse(tasks);
+        }
+    }
+
+    private saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(this.tasks)); // Cool!
+    }
+
+    getUserTasks(userId: string) {
+        return this.tasks.filter((task) => task.userId === userId);
+    }
+
+    addTask(userId: string, newTaskData: NewTaskData) {
+        this.tasks.unshift({
+            id: new Date().getTime().toString(), // use timestamp as a unique id for the new task
+            userId: userId,
+            title: newTaskData.title,
+            summary: newTaskData.summary,
+            dueDate: newTaskData.date,
+        });
+        this.saveTasks();
+    }
+
+    removeTask(taskId: string) {
+        this.tasks = this.tasks.filter((task) => task.id !== taskId);
+        this.saveTasks();
+    }
+}
+```
+
+Here is the sequence on a fresh browser with empty local storage:
+
+1. App boots. The service is created. The constructor runs `getItem('tasks')` and gets `null`. Nothing is stored yet, so `this.tasks` keeps your three defaults, in memory only.
+2. Local storage is still empty at this point. You could open DevTools now and see no `tasks` key.
+3. You click something. Maybe you added a task. Maybe you completed or deleted one.
+4. That click runs `addTask` or `removeTask`. Both end with `this.saveTasks()`.
+5. `saveTasks()` runs `setItem('tasks', JSON.stringify(this.tasks))`. This is the first ever write. And here is the important bit: `this.tasks` at that moment is your three defaults, changed by that one action.
+
+The key thing I learned is that the `saveTasks()` actually save the whole updated tasks array into the local storage, regardless of the adding or the removing happened first:
+```ts
+// You added one task. But JSON.stringify writes the WHOLE array.
+localStorage.setItem('tasks', JSON.stringify(this.tasks));
+```
+
+To test the local storage, one way is to clear it entirely - I can go to dev tool > application tab > Local storage > right click on the key name, `tasks`, to delete it.
