@@ -81,81 +81,83 @@ I will skip it for now.
 
 ## Section 5: Debugging Angular Apps
 
-Last update: Aug 5, 2026.
+Last update: Aug 6, 2026.
 
 This section will be using a starting project (actually the finished project from the previous section) to demo.
 
 Here it will talk about the Angular DevTools.
 
-So I will look at it this time.
+Another thing I've learned today is that there's also a built-in Sources > Page tab in the Chrome DevTool where I can put a breakpoint to trace in the code file.
 
-## Section 6:
+## Section 6: Components & Templates - Deep Dive
+
+Last update: Aug 6, 2026.
+
+I just watched the module intro and skip the rest for now.
+
+## Section 7: Enhancing Elements with Directives - Deep Dive
+
+Last update: Aug 6, 2026.
+
+I just watched the module intro and skip the rest for now.
+
+## Section 8: Transforming Values with Pipes - Deep Dive
 
 Last update: Aug 5, 2026.
 
 I will skip it for now.
 
-## Section 7:
-
-Last update: Aug 5, 2026.
-
-I will skip it for now.
-
-## Section 8:
-
-Last update: Aug 5, 2026.
-
-I will skip it for now.
-
-## Section 9:
+## Section 9: Understanding Services &amp; Dependency Injection - Deep Dive
 
 Last update: Aug 5, 2026.
 
 I will do the Section 10 first, Section 11, Section 9 and then Section 13.
 
-## Section 10:
+## Section 10: Making Sense of Change Detection - Deep Dive
+
+Last update: Aug 6, 2026.
+
+I watched half of the Section 10 about change detection, but it was old (at work we're not using `OnPush` anymore, and from angular 21+ `zoneless` is the default. There's also only one place for `async pipe`).
+
+So I will only practice the No.207 video in the Section 10 (how it just uses `signal` on the `count` variable).
+
+## Section 11: Working with RxJS (Observables) - Deep Dive
 
 Last update: Aug 5, 2026.
 
 I will do the Section 10 first, Section 11, Section 9 and then Section 13.
 
-## Section 11:
+## Section 12: Sending HTTP Requests &amp; Handling Responses
+
+Last update: Aug 5, 2026.
+
+I will skip it for now.
+
+## Section 13: Handling User Input &amp; Working with Forms (Template-driven &amp; Reactive)
 
 Last update: Aug 5, 2026.
 
 I will do the Section 10 first, Section 11, Section 9 and then Section 13.
 
-## Section 12:
+## Section 14: Routing &amp; Building Multi-page Single Page Applications
 
 Last update: Aug 5, 2026.
 
 I will skip it for now.
 
-## Section 13:
-
-Last update: Aug 5, 2026.
-
-I will do the Section 10 first, Section 11, Section 9 and then Section 13.
-
-## Section 14:
+## Section 15: Code Splitting &amp; Deferrable Views
 
 Last update: Aug 5, 2026.
 
 I will skip it for now.
 
-## Section 15:
+## Section 16: Deploying Angular Apps - CSR, SSR, SGA
 
 Last update: Aug 5, 2026.
 
 I will skip it for now.
 
-## Section 16:
-
-Last update: Aug 5, 2026.
-
-I will skip it for now.
-
-## Section 17:
+## Section 17: Course Roundup &amp; Next Steps
 
 Last update: Aug 5, 2026.
 
@@ -167,13 +169,13 @@ Last update: Aug 5, 2026.
 
 I will skip them for now.
 
-## Section 36
+## Section 36: Authentication &amp; Route Protection in Angular<
 
 Last update: Aug 5, 2026.
 
 I will skip it for now.
 
-## Section 39
+## Section 39: Standalone Components
 
 Last update: Aug 5, 2026.
 
