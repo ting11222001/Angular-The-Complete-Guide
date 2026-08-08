@@ -57,7 +57,7 @@ Keep the dev server up and running when making code changes. It will recompile o
 
 Last update: Aug 5, 2026.
 
-This section is creating a project, EasyTask. The notes about this project is in the `Angular-The-Complete-Guide-2026\01-starting-project`.
+This section is creating a project, EasyTask. The notes about this project is in the `Angular-The-Complete-Guide-2026\01-starting-project-section-2`.
 
 ## Section 3: Angular Essentials - Working with Modules
 
