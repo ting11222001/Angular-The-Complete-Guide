@@ -45,3 +45,11 @@ Node.js           : 24.13.0
 Package Manager   : npm 11.6.2
 Operating System  : win32 x64
 ```
+
+## Git add: current folder vs whole repo
+
+`git rev-parse --show-toplevel` printed the very top folder (`Angular-The-Complete-Guide-2026`) while you were inside the section folder, that means there is no separate .git inside the section folder.
+
+`git add .` only stages files in your current folder and below. If you run it from inside 01-starting-project-section-2, it cannot see NOTES.md, because that file sits in a sibling folder, outside your current location.
+
+`git add -A`, with no folder or file named after it, stages changes across the whole repository, no matter where you are standing. It is not limited to your current folder.
