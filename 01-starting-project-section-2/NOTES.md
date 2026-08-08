@@ -2,11 +2,9 @@
 
 This is a place where I take notes for the practice project of the section 2 of the course, `Angular Essentials - Components, Templates, Services & More`.
 
-The project folder is named `01-starting-project`, but it should be `easy-task`.
+The project folder is named `01-starting-project-section-2`, and the actual project is called `easy-task`.
 
-As halfway renaming the project caused too much trouble, I kept it as is, and the branch name for this project is `app-easy-task`.
-
-## Angular Essentials - Components, Templates, Services & More
+## Section 2: Angular Essentials - Components, Templates, Services & More
 
 ### A New Starting Project & Analyzing The Project Structure
 
