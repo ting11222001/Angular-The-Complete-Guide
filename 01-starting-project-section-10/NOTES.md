@@ -26,3 +26,56 @@ So TypeScript takes your `.ts` source files and copies them into JavaScript, kee
 
 TypeScript keeps the same folder structure when it copies files across. So `src/app/app.component.ts` becomes `dist/out-tsc/app/app.component.js`.
 
+### Remove `"zone.js"` from `angular.json`
+
+`angular.json` defines how this angular app is built.
+
+I need to make sure this `"zone.js"` is removed from `polyfills`:
+
+```json
+// old:
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "change-detection-deep-dive": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/change-detection-deep-dive",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+
+// new:
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "change-detection-deep-dive": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/change-detection-deep-dive",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "polyfills": [],
+```
+
+Then, restart the local dev server for that to take effect.
