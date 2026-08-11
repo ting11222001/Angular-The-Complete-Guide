@@ -79,3 +79,7 @@ I need to make sure this `"zone.js"` is removed from `polyfills`:
 ```
 
 Then, restart the local dev server for that to take effect.
+
+### The main concept of this practice is to use `signal`
+
+The main concept of this practice is to use `signal` instead of `zone.js` to track changes in the app.
