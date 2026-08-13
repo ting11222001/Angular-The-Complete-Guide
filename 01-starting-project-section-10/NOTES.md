@@ -271,4 +271,99 @@ Then refresh browser and clear the console. Click increment. After 4 sec, it wil
 
 So using `runOutsideAngular` helped avoiding polluting `zone.js` from events that don't matter.
 
-### Using the `OnPush` strategy
+### Using the `OnPush` strategy and Understanding the OnPush Strategy
+
+It's used to make sure a specific component runs less of change detection to improve performance. 
+
+In `MessagesComponent`, add `ChangeDetection.OnPush`:
+```ts
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { MessagesListComponent } from './messages-list/messages-list.component';
+import { NewMessageComponent } from './new-message/new-message.component';
+
+@Component({
+  selector: 'app-messages',
+  standalone: true,
+  templateUrl: './messages.component.html',
+  styleUrl: './messages.component.css',
+  imports: [MessagesListComponent, NewMessageComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class MessagesComponent {
+ ....
+}
+```
+
+Once that's added, the logs in the console will be from other components, not from `MessagesComponent` anymore.
+
+So only the events happened in the `MessagesComponent` will trigger the change detection of this component.
+
+This strategy just an extra optimisation on the performance.
+
+Remmeber in the app component template here - the changes of the counter component will not be affecting the message component anymore after we add OnPush setting to the message component:
+
+```html
+<h1>Making Sense of Change Detection</h1>
+
+<app-counter />
+<app-messages />
+
+<p class="debug-output">{{ debugOutput }}</p>
+```
+
+Add `changeDetection: ChangeDetectionStrategy.OnPush,` to the `NewMessageComponent` and type letters into the field, still trigger counter component's messages, as it bubbles up to the app component.
+
+So I have to add `changeDetection: ChangeDetectionStrategy.OnPush,` to the `CounterComponent` too:
+
+```ts
+import { Component, NgZone, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
+
+import { InfoMessageComponent } from '../info-message/info-message.component';
+
+@Component({
+  selector: 'app-counter',
+  standalone: true,
+  templateUrl: './counter.component.html',
+  styleUrl: './counter.component.css',
+  imports: [InfoMessageComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class CounterComponent implements OnInit {
+    ...
+}
+```
+
+I can see `InfoMessageComponent` still logging inside the console, as it's part of the counter component.
+
+```html
+<p>
+  <button (click)="onDecrement()">Decrement</button>
+  <span>{{ count() }}</span>
+  <button (click)="onIncrement()">Increment</button>
+</p>
+<p class="debug-output">{{ debugOutput }}</p>
+<app-info-message />
+```
+
+So add `changeDetection: ChangeDetectionStrategy.OnPush,` in the `InfoMessageComponent` as well.
+
+After that, when I click on incrementing/decrementing the counts in the counter component, it will not print the message components related debug mesages in the console anymore.
+
+Then, in the `MessageListComponent` I can do that too - so only when the input value is changed, then this component's change detection runs.
+
+After that, when I just type in the message field before hitting `save`, the `MessageListComponent` is not printed/evaluated by change detection anymore.
+
+```ts
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+
+@Component({
+  selector: 'app-messages-list',
+  standalone: true,
+  templateUrl: './messages-list.component.html',
+  styleUrl: './messages-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,  
+})
+export class MessagesListComponent {
+    ...
+}
+```
