@@ -708,3 +708,165 @@ export class MessagesListComponent {
 ```
 
 The message app should work as expected - once a message is typed and clicked save, it should show up in the MessageList area and MessageListComponent's debug message should print in the Console tab like this `[MessagesList] "debugOutput" binding re-evaluated.`
+
+### Zoneless & Angular 21+ and Going Zoneless
+
+For Angular 21+ by default it's zoneless i.e. no more `zone.js`.
+
+As long as I'm using `signals`, then I don't need to use `zone.js` anymore, as Angular will know when a signal value is changed.
+
+like this in the `CounterComponent`:
+```ts
+count = signal(0);
+```
+
+Also the event bindings are easy for Angular to detect changes and run change detections too:
+```html
+<button (click)="onDecrement()">Decrement</button>
+```
+
+Remove `zone.js` leads to a smaller code bundle size, so less under the hood checks and less listeners, i.e. good in general.
+
+Start rewriting.
+
+First, rewrite the `MessagesService` back to using `signals`.
+
+Like this:
+```ts
+@Injectable({
+  providedIn: 'root',
+})
+export class MessagesService {
+    private messages = signal<string[]>([]);
+    allMessages = this.messages.asReadonly();
+
+    addMessage(message: string) {
+        this.messages.update((prevMessages) => [...prevMessages, message]);
+    }
+}
+```
+
+Then, rewrite the `NewMessageComponent` back to using `signals`.
+
+Like this:
+```ts
+export class NewMessageComponent {
+  private messagesService = inject(MessagesService);
+  enteredText = signal('');
+
+  get debugOutput() {
+    console.log('[NewMessage] "debugOutput" binding re-evaluated.');
+    return 'NewMessage Component Debug Output';
+  }
+
+  onSubmit() {
+    this.messagesService.addMessage(this.enteredText());
+    this.enteredText.set('');
+  }
+}
+```
+
+Then, rewrite the `MessagesListComponent` back to using `signals` and remove `AsyncPipe`.
+
+Like this:
+```ts
+export class MessagesListComponent {
+  private messagesService = inject(MessagesService);
+  messages = this.messagesService.allMessages;
+  
+  get debugOutput() {
+    console.log('[MessagesList] "debugOutput" binding re-evaluated.');
+    return 'MessagesList Component Debug Output';
+  }
+}
+```
+
+Also update its template accordingly:
+```html
+<ul>
+  @for (message of messages(); track message) {
+    <li>{{ message }}</li>
+  }
+</ul>
+```
+
+Till now I can be sure that all the places that might have a data change is now managed by `signals`.
+
+Then, go to `angular.json`, in the `build` block > `polyfills`, remove `zone.js` there, like this:
+```json
+   "architect": {
+        "build": {
+          ...
+          "options": {
+            ...
+            "polyfills": [
+              "zone.js" // remove this!
+            ],
+```
+
+Then, restart the local dev server.
+
+Next, go to `main.ts`. Add a configuration object with `providers`
+
+```ts
+// old
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+
+bootstrapApplication(AppComponent).catch((err) => console.error(err));
+
+// new
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideExperimentalZonelessChangeDetection()],
+}).catch((err) => console.error(err));
+```
+
+This `providers: [provideExperimentalZonelessChangeDetection()],` is now properly disabling `zone.js` for this angular app, so `zone.js` will not be tracking if the timer was expired in the `CounterComponent`. Now it fully relies on `signals` to tell Angular that something has changed.
+
+So remove the `this.zone.runOutsideAngular` from the second timer and remove `private zone = inject(NgZone);`.
+
+Like this:
+```ts
+export class CounterComponent implements OnInit {
+  count = signal(0);
+
+  get debugOutput() {
+    console.log('[Counter] "debugOutput" binding re-evaluated.');
+    return 'Counter Component Debug Output';
+  }
+
+  ngOnInit() {
+    setTimeout(() => {
+      this.count.set(0);
+    }, 4000);
+
+    setTimeout(() => {
+      console.log('[Counter] "count" signal updated to 0 after 4 seconds.');
+    }, 5000);
+  }
+
+  onDecrement() {
+    this.count.update((prevCount) => prevCount - 1);
+  }
+
+  onIncrement() {
+    this.count.update((prevCount) => prevCount + 1);
+  }
+}
+```
+
+So now when I click the increment count button in the counter app, it will only trigger the CD of the `CounterComponent` and bubbles up to the `AppComponent`.
+
+#### Is the `provideExperimentalZonelessChangeDetection` still around in the latest Angular e.g. Angular 21?
+
+Angular 18: introduced `provideExperimentalZonelessChangeDetection()` (the one in your tutorial), experimental.
+
+Angular 20.0: renamed to `provideZonelessChangeDetection()`, moved to developer preview.
+
+Angular 20.2: `provideZonelessChangeDetection()` became stable.
+
+Angular 21: `zoneless` is now the default for new apps. You don't even need to call the provider yourself, unless you're opting an existing app in.

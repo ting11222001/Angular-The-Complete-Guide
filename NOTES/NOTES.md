@@ -115,11 +115,9 @@ I will do the Section 10 first, Section 11, Section 9 and then Section 13.
 
 ## Section 10: Making Sense of Change Detection - Deep Dive
 
-Last update: Aug 6, 2026.
+Last update: Aug 15, 2026.
 
-I watched half of the Section 10 about change detection, but it was old (at work we're not using `OnPush` anymore, and from angular 21+ `zoneless` is the default. There's also only one place for `async pipe`).
-
-So I will only practice the No.207 video in the Section 10 (how it just uses `signal` on the `count` variable).
+I originally planned to just watch the last video for the section (i.e. the No.207 video), but it turned out to hard to follow halfway, so I end up watching the whole section to get better context where we're from.
 
 ## Section 11: Working with RxJS (Observables) - Deep Dive
 
