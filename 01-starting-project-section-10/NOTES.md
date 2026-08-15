@@ -649,3 +649,62 @@ export class MessagesListComponent implements OnInit {
   }
 }
 ```
+
+### Introducing the async pipe
+
+So far that was a bit of code to write - if I'm using services without signals then OnPush will need RxJS to be notified that there's some changes in the component then CD needs to run.
+
+Instead of managing the `messages` property, injecting change detector reference manually and managing subscription setup and cleanup manually, I can just add a new property `messages$` as a specialy pipe to automatically setup and cleanup that subscription, and read the values from the subject.
+
+So the `MessagesListComponent` becomes like this which is cleaner:
+```ts
+export class MessagesListComponent {
+  private messagesService = inject(MessagesService);
+  messages$ = this.messagesService.messages$;
+  
+  get debugOutput() {
+    console.log('[MessagesList] "debugOutput" binding re-evaluated.');
+    return 'MessagesList Component Debug Output';
+  }
+}
+```
+
+And its template looks like this:
+```html
+<ul>
+  @for (message of messages$ | async; track message) {
+    <li>{{ message }}</li>
+  }
+</ul>
+
+<p class="debug-output">{{ debugOutput }}</p>
+```
+
+Note that `async` needs to work with observables like `messages$`. With `async` pipe, behind the scene, Angular will set up a subscription, read the values that are emitted by the subject, and will provide them in the template here and finally unsubscribe it. In addition, it will also trigger CD for this component whenever a new value is received from the subject/observable.
+
+I will need to add `AsyncPipe` as imports from `@angular/common` to let it work:
+```ts
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MessagesService } from '../messages.service';
+import { AsyncPipe } from '@angular/common';
+
+@Component({
+  selector: 'app-messages-list',
+  standalone: true,
+  imports: [AsyncPipe],
+  templateUrl: './messages-list.component.html',
+  styleUrl: './messages-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,  
+})
+export class MessagesListComponent {
+  private messagesService = inject(MessagesService);
+  messages$ = this.messagesService.messages$;
+  
+  get debugOutput() {
+    console.log('[MessagesList] "debugOutput" binding re-evaluated.');
+    return 'MessagesList Component Debug Output';
+  }
+}
+```
+
+The message app should work as expected - once a message is typed and clicked save, it should show up in the MessageList area and MessageListComponent's debug message should print in the Console tab like this `[MessagesList] "debugOutput" binding re-evaluated.`
