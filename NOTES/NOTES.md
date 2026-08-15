@@ -109,9 +109,9 @@ I will skip it for now.
 
 ## Section 9: Understanding Services &amp; Dependency Injection - Deep Dive
 
-Last update: Aug 5, 2026.
+Last update: Aug 15, 2026.
 
-I will do the Section 10 first, Section 11, Section 9 and then Section 13.
+I will do Section 9, then Section 11 and then Section 13.
 
 ## Section 10: Making Sense of Change Detection - Deep Dive
 
@@ -121,9 +121,9 @@ I originally planned to just watch the last video for the section (i.e. the No.2
 
 ## Section 11: Working with RxJS (Observables) - Deep Dive
 
-Last update: Aug 5, 2026.
+Last update: Aug 15, 2026.
 
-I will do the Section 10 first, Section 11, Section 9 and then Section 13.
+I will do this after Section 9.
 
 ## Section 12: Sending HTTP Requests &amp; Handling Responses
 
@@ -133,9 +133,9 @@ I will skip it for now.
 
 ## Section 13: Handling User Input &amp; Working with Forms (Template-driven &amp; Reactive)
 
-Last update: Aug 5, 2026.
+Last update: Aug 15, 2026.
 
-I will do the Section 10 first, Section 11, Section 9 and then Section 13.
+I will do this after Section 9 and Section 11.
 
 ## Section 14: Routing &amp; Building Multi-page Single Page Applications
 
