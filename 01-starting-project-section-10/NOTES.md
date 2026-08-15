@@ -367,3 +367,72 @@ export class MessagesListComponent {
     ...
 }
 ```
+
+### Working with OnPush & Signals
+
+In `CounterComponent`, the `count` signal will make changeDetection happen also.
+
+It's okay when I'm using `services` and signal to store the data from services in the `OnPush` components.
+
+Start by rewriting the `OnPush` components using signals from services.
+
+For example, if now I'm managing those messages in the `MessagesService`.
+
+- Remove `messages` signal and `onAddMessage` function from `MessagesComponent`. Update the template accordingly.
+- Remove `add` output event and the `add` event emit from `onSubmit()` from `NewMessageComponent`.
+
+Like this:
+```ts
+@Component({
+  selector: 'app-new-message',
+  standalone: true,
+  imports: [FormsModule],
+  templateUrl: './new-message.component.html',
+  styleUrl: './new-message.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class NewMessageComponent {
+  // add = output<string>();
+  private messagesService = inject(MessagesService);
+  enteredText = signal('');
+
+  get debugOutput() {
+    console.log('[NewMessage] "debugOutput" binding re-evaluated.');
+    return 'NewMessage Component Debug Output';
+  }
+
+  onSubmit() {
+    // this.add.emit(this.enteredText());
+    this.messagesService.addMessage(this.enteredText());
+    this.enteredText.set('');
+  }
+}
+```
+
+- Remove `messages` input from `MessagesListComponent`, and inject from the `MessagesService` instead.
+
+Like this:
+```ts
+@Component({
+  selector: 'app-messages-list',
+  standalone: true,
+  templateUrl: './messages-list.component.html',
+  styleUrl: './messages-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,  
+})
+export class MessagesListComponent {
+  private messagesService = inject(MessagesService);
+  messages = this.messagesService.allMessages;
+  
+  get debugOutput() {
+    console.log('[MessagesList] "debugOutput" binding re-evaluated.');
+    return 'MessagesList Component Debug Output';
+  }
+}
+```
+
+So till now, I've got the service setup for these components `MessagesListComponent` and `NewMessageComponent` and they both have `OnPush` setup.
+- `MessagesComponent` also has `OnPush` setup, just without signals.
+
+Currently the app will work as expected - the counter area got clicked then only counter related components and the root app components will print its debug output in the Console tab, so does the message area in the app.
+
