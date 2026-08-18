@@ -61,3 +61,65 @@ export class TasksService {
 ```
 
 Next, I will use this `TasksService` in the `NewTaskComponent`.
+
+## How NOT to provide a service. Use Angular's dependency injection mechanism instead!
+
+Don't put `new TasksService()` in the `constructors`! Otherwise, different components will end up having separate `TasksService` instances.
+
+So don't do this, or I'm not able to share data with other components:
+```ts
+export class NewTaskComponent {
+  private formEl = viewChild<ElementRef<HTMLFormElement>>('form');
+  private tasksService: TasksService;
+
+  constructor() {
+    this.tasksService = new TasksService(); // this will create a new TasksService instance just for this
+  }
+
+  onAddTask(title: string, description: string) {
+    this.tasksService.addTask({ title, description });
+    this.formEl()?.nativeElement.reset();
+  }
+}
+```
+
+But do this with Angular's dependency injection mechanism:
+```ts
+export class NewTaskComponent {
+  private formEl = viewChild<ElementRef<HTMLFormElement>>('form');
+  private tasksService: TasksService;
+
+  constructor(tasksService: TasksService) { // Angular will provide this tasksService parameter in the constructor
+    this.tasksService = tasksService;
+  }
+
+  onAddTask(title: string, description: string) {
+    this.tasksService.addTask({ title, description });
+    this.formEl()?.nativeElement.reset();
+  }
+}
+```
+
+So I don't create service instances myself. I request them from Angular.
+
+A even shorter way to write this requesting a service code. It is a TypeScript magic - TypeScipt will go ahead and create a proerpty with the same name for this class.
+
+```ts
+export class NewTaskComponent {
+  private formEl = viewChild<ElementRef<HTMLFormElement>>('form');
+
+  constructor(private tasksService: TasksService) {}
+
+  onAddTask(title: string, description: string) {
+    this.tasksService.addTask({ title, description });
+    this.formEl()?.nativeElement.reset();
+  }
+}
+```
+
+That `private` means it makes sure the template will not be able to directly use the `tasksService`. We usually only use the services inside the component class:
+```ts
+constructor(private tasksService: TasksService) {}
+```
+
+By doing this, I can make sure I'm using the one shared service instance of `TasksService` across the whole app.
