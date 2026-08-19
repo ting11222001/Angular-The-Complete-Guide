@@ -163,3 +163,17 @@ export class TasksService {
 ```
 
 `asReadonly`: it will be `(method) WritableSignal<Task[]>.asReadonly(): Signal<Task[]>` which is a read only signal.
+
+
+Also, update the template for `TasksListComponent`, use signal `tasks()` and use `task.id` as unique identifier for individual task items:
+```html
+<ul>
+  @for (task of tasks(); track task.id) {
+    <li>
+      <app-task-item [task]="task" />
+    </li>
+  }
+</ul>
+```
+
+Now in the app, I can create a task with title and description and click `Add Task`, it will be added to the `My Tasks` list.
