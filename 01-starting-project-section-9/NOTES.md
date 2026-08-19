@@ -123,3 +123,43 @@ constructor(private tasksService: TasksService) {}
 ```
 
 By doing this, I can make sure I'm using the one shared service instance of `TasksService` across the whole app.
+
+## Using the alternative dependency injection syntax
+
+Use `inject()` to inject the `TasksService` instead of using `constructors`.
+
+```ts
+export class TasksListComponent {
+  private tasksService = inject(TasksService); // updated!
+  selectedFilter = signal<string>('all');
+  tasks = this.tasksService.allTasks; // updated!
+
+  onChangeTasksFilter(filter: string) {
+    this.selectedFilter.set(filter);
+  }
+}
+```
+
+When hovering over `tasks` property in the `TasksListComponent`, it shows this `(property) TasksListComponent.tasks: WritableSignal<Task[]>`. Change that to NOT changeable with `private` in the `TasksService`, and create a new property, `allTasks = this.tasks.asReadonly()` to safely expose this property. 
+
+```ts
+@Injectable({
+  providedIn: 'root',
+})
+export class TasksService {
+    private tasks = signal<Task[]>([]); // updated!
+
+    allTasks = this.tasks.asReadonly(); // updated!
+
+    addTask(taskData: { title: string; description: string }) {
+        const newTask: Task = {
+            ...taskData,
+            id: Math.random().toString(),
+            status: 'OPEN'
+        };
+        this.tasks.update((oldTasks) => [...oldTasks, newTask]);
+    }
+}
+```
+
+`asReadonly`: it will be `(method) WritableSignal<Task[]>.asReadonly(): Signal<Task[]>` which is a read only signal.
