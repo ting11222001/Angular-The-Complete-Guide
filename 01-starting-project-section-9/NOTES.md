@@ -177,3 +177,217 @@ Also, update the template for `TasksListComponent`, use signal `tasks()` and use
 ```
 
 Now in the app, I can create a task with title and description and click `Add Task`, it will be added to the `My Tasks` list.
+
+## Reusing logic with Services
+
+For example, in `TasksService`, add a new method:
+```ts
+@Injectable({
+  providedIn: 'root',
+})
+export class TasksService {
+    private tasks = signal<Task[]>([]);
+
+    allTasks = this.tasks.asReadonly();
+
+    addTask(taskData: { title: string; description: string }) {
+        const newTask: Task = {
+            ...taskData,
+            id: Math.random().toString(),
+            status: 'OPEN'
+        };
+        this.tasks.update((oldTasks) => [...oldTasks, newTask]);
+    }
+
+    updateTaskStatus(taskId: string, newStatus: TaskStatus) { // new!
+        this.tasks.update((oldTasks) => 
+            oldTasks.map((task) => 
+                task.id === taskId ? { ...task, status: newStatus } : task
+        ));
+    }
+}
+```
+
+The goal was to return a new array of tasks with a specific task's status is updated.
+
+`.map()` will execute on arrays and each of its item and returns a new array. When it finds the task with the id I want, it copies the values of the task object and overwrite the old stask status with the new status before returning the new task object.
+
+If not the task I want, it returns the original task as is.
+
+Always try to return a new copy of array/object instead of mutating the existing ones.
+
+Then, in the `TasksListComponent` template, the user can use the drop down list to filter the task status.
+
+So change the `tasks` property into a computed signal (which is like a function that tracks the reactive data):
+
+```ts
+@Component({
+  selector: 'app-tasks-list',
+  standalone: true,
+  templateUrl: './tasks-list.component.html',
+  styleUrl: './tasks-list.component.css',
+  imports: [TaskItemComponent],
+})
+export class TasksListComponent {
+  private tasksService = inject(TasksService);
+  private selectedFilter = signal<string>('all');
+  // tasks = this.tasksService.allTasks; // old
+  tasks = computed(() => {  // new!
+    switch (this.selectedFilter()) {
+      case 'open':
+        return this.tasksService.allTasks().filter((task) => task.status === 'OPEN');
+      case 'in-progress':
+        return this.tasksService.allTasks().filter((task) => task.status === 'IN_PROGRESS');
+      case 'done':
+        return this.tasksService.allTasks().filter((task) => task.status === 'DONE');
+      default:
+        return this.tasksService.allTasks();
+    }
+  });
+
+  onChangeTasksFilter(filter: string) {
+    this.selectedFilter.set(filter);
+  }
+}
+```
+
+The `switch` cases are aligned with the `select` drop down in the template:
+```html
+<select (change)="onChangeTasksFilter(filter.value)" #filter>
+    <option value="all">All</option>
+    <option value="open">Open</option>
+    <option value="in-progress">In-Progress</option>
+    <option value="done">Completed</option>
+</select>
+```
+
+And whenever the `selectedFilter` change, the `tasks` will change.
+
+Until now, the filter drop down should work in the app.
+
+Next, make sure the update task status would work for each task.
+
+In `TaskItemComponent` it looked like this initially:
+
+```ts
+@Component({
+  selector: 'app-task-item',
+  standalone: true,
+  imports: [FormsModule],
+  templateUrl: './task-item.component.html',
+  styleUrl: './task-item.component.css',
+})
+export class TaskItemComponent {
+  task = input.required<Task>();
+  taskStatus = computed(() => {
+    switch (this.task().status) {
+      case 'OPEN':
+        return 'Open';
+      case 'IN_PROGRESS':
+        return 'Working on it';
+      case 'DONE':
+        return 'Completed';
+      default:
+        return 'Open';
+    }
+  });
+
+  onChangeTaskStatus(taskId: string, status: string) {
+    let newStatus: TaskStatus = 'OPEN';
+
+    switch (status) {
+      case 'open':
+        newStatus = 'OPEN';
+        break;
+      case 'in-progress':
+        newStatus = 'IN_PROGRESS';
+        break;
+      case 'done':
+        newStatus = 'DONE';
+        break;
+      default:
+        break;
+    }
+  }
+}
+```
+
+Now I inject the `TasksService` into this component, and make sure `onChangeTaskStatus` will now call the `TasksService` to update the tasks accordingly to the selected change status of the task:
+
+```ts
+@Component({
+  selector: 'app-task-item',
+  standalone: true,
+  imports: [FormsModule],
+  templateUrl: './task-item.component.html',
+  styleUrl: './task-item.component.css',
+})
+export class TaskItemComponent {
+  private tasksService = inject(TasksService); // added!
+  task = input.required<Task>();
+  taskStatus = computed(() => {
+    switch (this.task().status) {
+      case 'OPEN':
+        return 'Open';
+      case 'IN_PROGRESS':
+        return 'Working on it';
+      case 'DONE':
+        return 'Completed';
+      default:
+        return 'Open';
+    }
+  });
+
+  onChangeTaskStatus(taskId: string, status: string) {
+    let newStatus: TaskStatus = 'OPEN';
+
+    switch (status) {
+      case 'open':
+        newStatus = 'OPEN';
+        break;
+      case 'in-progress':
+        newStatus = 'IN_PROGRESS';
+        break;
+      case 'done':
+        newStatus = 'DONE';
+        break;
+      default:
+        break;
+    }
+
+    this.tasksService.updateTaskStatus(taskId, newStatus); // added!
+  }
+}
+```
+
+And the template of `TaskItemComponent` remains same:
+
+```html
+<article
+  [class]="{
+    'status-open': task().status === 'OPEN',
+    'status-in-progress': task().status === 'IN_PROGRESS',
+    'status-done': task().status === 'DONE'
+  }"
+>
+  <header>
+    <h3>{{ task().title }}</h3>
+    <p>{{ taskStatus() }}</p>
+  </header>
+  <p>{{ task().description }}</p>
+  <form (ngSubmit)="onChangeTaskStatus(task().id, status.value)">
+    <select #status>
+      <option value="open" [selected]="task().status === 'OPEN'">Open</option>
+      <option value="in-progress" [selected]="task().status === 'IN_PROGRESS'">
+        In-Progress
+      </option>
+      <option value="done" [selected]="task().status === 'DONE'">
+        Completed
+      </option>
+    </select>
+    <p>
+      <button>Change Status</button>
+    </p>
+  </form>
+</article>
+```
