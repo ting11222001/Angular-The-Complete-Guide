@@ -391,3 +391,83 @@ And the template of `TaskItemComponent` remains same:
   </form>
 </article>
 ```
+
+## Angular has multiple injectors
+
+So this `@Injectable` is not the only way to make Angular aware of injectable value:
+
+```ts
+@Injectable({
+  providedIn: 'root',
+})
+export class TasksService {
+    ...
+```
+
+I don't create service instances myself, instead I should request them from Angular.
+
+E.g. `PlatformInjector` allows multiple applications that are under one Angular project to use the same service. In `main.ts`, I can have multiple `bootstrapApplication` and set up a platform injector to allow them to access a service instance.
+
+Most of the time, we use the application root `EnvironmentInjector` (if using ngModules, then `ModuleInjector`).
+
+There's also `ElementInjector`.
+
+A component reaches out to them in this order: `ElementInjector` > the application root `EnvironmentInjector` OR ngModules `ModuleInjector` >  `PlatformInjector`.
+
+If I comment out this annotation:
+
+```ts
+// @Injectable({
+//   providedIn: 'root',
+// })
+export class TasksService {
+    ...
+```
+
+The app will crash with this error `NullInjectorError`:
+```
+NullInjectorError: No provider for TasksService!
+```
+
+## There are multiple ways of providing a Service
+
+For example, if I don't use the `@Injectable` decorator in the `TasksService` class to provide the service, I can provide the service in `main.ts` like the below instead i.e. by adding a configuration object on `bootstrapApplication`:
+
+```ts
+// main.ts:
+// old
+bootstrapApplication(AppComponent).catch((err) => console.error(err));
+
+// new
+bootstrapApplication(AppComponent, {
+    providers: [TasksService],
+}).catch((err) => console.error(err));
+
+// tasks.service.ts:
+// @Injectable({            // removed this
+//   providedIn: 'root',
+// })
+export class TasksService {...
+```
+
+One downside is that `TasksService` will be loaded and included during the code bundel initialisation even though it might not be needed initially.
+
+I will learn about the concept of lazy loading and splitting the code across multiple bundles to improve efficiency later in this course.
+
+In fact, using this `@Injectable` in the `TasksService` can lead to more optimised code bundles and to a smaller initial code base:
+
+```ts
+@Injectable({
+  providedIn: 'root',
+})
+export class TasksService {...
+```
+
+So it's more recommended to use this `@Injectable` approach instead of using the providers array in the `bootstrapApplication` in the `main.ts`:
+
+```ts
+@Injectable({
+  providedIn: 'root',
+})
+export class TasksService {...
+```
