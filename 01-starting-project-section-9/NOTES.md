@@ -471,3 +471,45 @@ So it's more recommended to use this `@Injectable` approach instead of using the
 })
 export class TasksService {...
 ```
+
+
+## Providing Services via the Element injector
+
+For example, comment out this:
+```ts
+// @Injectable({
+//   providedIn: 'root',
+// })
+export class TasksService
+```
+
+And add `providers` array in the `TasksComponent` instead:
+```ts
+@Component({
+  selector: 'app-tasks',
+  standalone: true,
+  templateUrl: './tasks.component.html',
+  imports: [NewTaskComponent, TasksListComponent],
+  providers: [TasksService]
+})
+export class TasksComponent {}
+```
+
+All the child components of `TasksComponent` i.e. those present in the template will have access to the `TasksService`:
+
+```html
+<app-new-task />
+<app-tasks-list />
+```
+
+## Understanding the Element Injector's Behavior
+
+If I use Element Injector in the `TasksComponent`, and then have two `TasksComponent` in the root `AppComponent`, these two `TasksComponent` won't share the same `TasksService` instances.
+
+For example, in the template of `AppComponent`:
+```html
+<app-tasks />
+<app-tasks />
+```
+
+Then on the screen, there will be two My Tasks lists - when adding a new task to one list, it won't show up in another list.

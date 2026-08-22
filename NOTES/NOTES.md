@@ -109,9 +109,11 @@ I will skip it for now.
 
 ## Section 9: Understanding Services &amp; Dependency Injection - Deep Dive
 
-Last update: Aug 15, 2026.
+Last update: Aug 22, 2026.
 
-I will do Section 9, then Section 11 and then Section 13.
+I will do Section 9 (until Video No. 185 where I learned about different types of injectors), then Section 11 and then Section 13.
+
+I didn't try to do finish Section 9 as the rest of the videos are about concepts that I haven't seen at work. It might not be relevant for now.
 
 ## Section 10: Making Sense of Change Detection - Deep Dive
 
