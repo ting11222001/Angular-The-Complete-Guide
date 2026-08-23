@@ -1,4 +1,4 @@
-# NOTES
+# Course Overview
 
 This is a place where I go through each module of the course and take the notes.
 
@@ -123,9 +123,9 @@ I originally planned to just watch the last video for the section (i.e. the No.2
 
 ## Section 11: Working with RxJS (Observables) - Deep Dive
 
-Last update: Aug 15, 2026.
+Last update: Aug 23, 2026.
 
-I will do this after Section 9.
+After Section 9, I'm doing this section 11 exercise. Next, I will do Section 13.
 
 ## Section 12: Sending HTTP Requests &amp; Handling Responses
 

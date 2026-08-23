@@ -1,4 +1,4 @@
-# AngularCLI
+# Angular CLI
 
 ## Create an Angular project 
 
