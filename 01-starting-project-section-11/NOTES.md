@@ -116,3 +116,95 @@ export class AppComponent implements OnInit {
 
 The result becomes from `0, 1, 2,...` to `0, 2, 4,...`.
 
+## Working with Signals
+
+`Subjects` are also `observables`. Just that `subjects` need me to take care of emitting those values manually. So I don't just subscribe but also emit the values.
+
+But with `observables`, there are ones that produces values automatically.
+
+Unlike `observables` coming from a 3rd party library, `RxJS`, `signals` are built into Angular.
+
+I will practice how to turn `signals` into `observables` and vice versa.
+
+Start with:
+
+```ts
+export class AppComponent implements OnInit {
+  clickCount = signal(0);
+
+  constructor() {
+    effect(() => {
+      console.log(`Clicked button ${this.clickCount()} times.`);
+    });
+  }
+
+  ngOnInit(): void {}
+
+  onClick() {
+    this.clickCount.update(prevCount => prevCount + 1);
+  }
+}
+```
+
+So every time I click the button, the screen prints `Click count: 3` and the dev tool's Console tab prints:
+
+```
+Clicked button 1 times.
+Clicked button 2 times.
+Clicked button 3 times.
+...
+```
+
+So far, it feels pretty similar to using signals and observables (because when the button is clicked, the signal gets updated and printed).
+
+## Signals vs Observables
+
+Also from the previous exercise, if I don't want to use `interval` observable from RxJS and use signals entirely, then there will be more code.
+
+For example:
+```ts
+// previously using RxJS:
+export class AppComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
+  ngOnInit(): void {
+    const subscription = interval(1000).pipe(
+      map((val) => val * 2)
+    ).subscribe({
+      next: (val) => console.log(val)
+    });
+
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
+    });
+  }
+}
+
+// now using signals for the same result:
+export class AppComponent implements OnInit {
+  interval = signal(0);
+  doubleInterval = computed(() => this.interval() * 2);
+
+  constructor() {
+    effect(() => {
+      console.log(`Interval: ${this.interval()}`);
+      console.log(`Double Interval: ${this.doubleInterval()}`);
+    });
+  }
+
+  ngOnInit(): void {
+    setInterval(() => {
+      this.interval.update(prevCount => prevCount + 1);
+    }, 1000);
+  }
+}
+```
+
+A couple of key differences:
+- `Signal` has initial values, but `observable` doesn't.
+- `Signal` version of `setInterval` will kick of without needing `subscribers` like the `observables`.
+- I can read the value of `signals` at anytime without a subscription.
+
+So:
+- `Observables` are values over time. Great for managing events and streamed data. Great for asynchornous events.
+- `Signals` are values in a container. Great for managing application state. It can set an initial value and can change over time and will be reflected on the UI.
