@@ -77,3 +77,42 @@ export class AppComponent implements OnInit {
 ```
 
 `this.destroyRef.onDestroy()` will be executed when this component is about to be removed. `subscription.unsubscribe();` will do the clean up.
+
+## Working with RxJS Operations
+
+`Operators` can be used to pipe into my `observable` data stream to perform transformations or any sorts of operations on those `observable` values.
+
+I can add `operators` to this `observable` pipeline by calling the `pipe` method before I subscribe:
+
+```ts
+const subscription = interval(1000).pipe().subscribe({
+    next: (val) => console.log(val)
+});
+```
+
+I can add a `map` method from RxJS [!here](https://rxjs.dev/api/index/function/map).
+
+What `map` does is that it takes a function as the argument  and that function will then be executed on every value that's emitted bythe observbale and then the function reuslt will be passed to the subscribers. 
+
+`map` will receive the value emitted by the `interval` observable, and it will return the updated value. This updated value will go to the `next` function's `val`.
+
+```ts
+export class AppComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
+  ngOnInit(): void {
+    const subscription = interval(1000).pipe(
+      map((val) => val * 2)
+    ).subscribe({
+      next: (val) => console.log(val)
+    });
+
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
+    });
+  }
+}
+```
+
+The result becomes from `0, 1, 2,...` to `0, 2, 4,...`.
+
