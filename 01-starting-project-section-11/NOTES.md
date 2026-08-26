@@ -202,9 +202,98 @@ export class AppComponent implements OnInit {
 
 A couple of key differences:
 - `Signal` has initial values, but `observable` doesn't.
-- `Signal` version of `setInterval` will kick of without needing `subscribers` like the `observables`.
+- `Signal` version of `setInterval` will kick off without needing `subscribers` like the `observables`.
 - I can read the value of `signals` at anytime without a subscription.
 
 So:
 - `Observables` are values over time. Great for managing events and streamed data. Great for asynchornous events.
 - `Signals` are values in a container. Great for managing application state. It can set an initial value and can change over time and will be reflected on the UI.
+
+## Converting signals to observables
+
+I can convert signals to observables like the below.
+
+Pass an un-executed signlas to the `toObservale()`.
+
+```ts
+export class AppComponent implements OnInit {
+  clickCount = signal(0); // added!
+  clickCount$ = toObservable(this.clickCount); // added!
+  private destroyRef = inject(DestroyRef);
+
+  ngOnInit(): void {
+    const subscription = this.clickCount$.subscribe({
+      next: (value) => {
+        console.log('Click count updated:', value);
+      }
+    });
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
+    });
+  } 
+
+  onClick() {
+    this.clickCount.update(prevCount => prevCount + 1);
+  }
+}
+```
+
+So when the app starts up, it prints `Click count updated: 0`.
+
+Then, whenever the click button is clicked, it will keep printing these in the dev tool > Console tab:
+```
+Click count updated: 1
+Click count updated: 2
+Click count updated: 3
+```
+
+The UI will only show the latest one:
+```
+Click count updated: 3
+```
+
+So bascially I can convert signals to observales or listen to signals with observables.
+
+`$` means it's an observable. I need to `subscribe` to it to kick those properties off. For example, subscribing to `clickCount$` in the `ngOnInit` and make sure that subscription is being destroyed along with the component.
+
+## Converting observables to signals
+
+I can create an observable without subscribing to it, and convert it to a signal.
+
+I can see `Interval: ` takes a short while to see the value counting from `0` - that's because observables (`interval` in this case), unlike signals, don't have an initial value. Signals and Subjects can create with initial values.
+
+```ts
+export class AppComponent implements OnInit {
+  clickCount = signal(0);
+  clickCount$ = toObservable(this.clickCount);
+  interval$ = interval(1000); // added!
+  intervalSignal = toSignal(this.interval$); // added!
+  private destroyRef = inject(DestroyRef);
+
+  ngOnInit(): void {
+    const subscription = this.clickCount$.subscribe({
+      next: (value) => {
+        console.log('Click count updated:', value);
+      }
+    });
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
+    });
+  } 
+
+  onClick() {
+    this.clickCount.update(prevCount => prevCount + 1);
+  }
+}
+```
+
+Angular will give `intervalSignal = toSignal(this.interval$);` an initial value as `undefined`.
+
+I can pass a configuration object into `toSignal()` and set a couple of things. For example, an initial value:
+```ts
+intervalSignal = toSignal(this.interval$, {initialValue: 0});
+```
+
+By doing that I can `Interval: 0` right from the start of the app up and running.
+
+Another good thing from `toSignal()` is that it will automatically clean up the observable subscription for me.
