@@ -123,9 +123,11 @@ I originally planned to just watch the last video for the section (i.e. the No.2
 
 ## Section 11: Working with RxJS (Observables) - Deep Dive
 
-Last update: Aug 23, 2026.
+Last update: Aug 28, 2026.
 
-After Section 9, I'm doing this section 11 exercise. Next, I will do Section 13.
+After Section 9, I'm doing this section 11 exercise. Finally, finish this section 11 today.
+
+Next, I will do Section 13.
 
 ## Section 12: Sending HTTP Requests &amp; Handling Responses
 
@@ -135,9 +137,9 @@ I will skip it for now.
 
 ## Section 13: Handling User Input &amp; Working with Forms (Template-driven &amp; Reactive)
 
-Last update: Aug 15, 2026.
+Last update: Aug 28, 2026.
 
-I will do this after Section 9 and Section 11.
+I will start doing this from Aug 28 onwards.
 
 ## Section 14: Routing &amp; Building Multi-page Single Page Applications
 
