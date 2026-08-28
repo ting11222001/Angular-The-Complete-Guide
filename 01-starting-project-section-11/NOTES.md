@@ -297,3 +297,224 @@ intervalSignal = toSignal(this.interval$, {initialValue: 0});
 By doing that I can `Interval: 0` right from the start of the app up and running.
 
 Another good thing from `toSignal()` is that it will automatically clean up the observable subscription for me.
+
+## Deep Dive: Creating & Using a custom observable from scratch
+
+I'm learnign about what happened behind the scene when an observable is created and when a subscription is set up without a creating operator in RxJS like `interval()`.
+
+Instantiate an Observable class - built-in creation operators `interval()` actually is building on top of this class:
+
+```ts
+customInterval$ = new Observable();
+```
+
+`Observable` class can be passed in a function:
+
+```ts
+customInterval$ = new Observable(() => {});
+```
+
+and this function will have its own argument, i.e. a subscriber:
+
+```ts
+customInterval$ = new Observable((subscriber) => {});
+```
+
+This function `(subscriber) => {}` will be executed by RxJS whenever we subscribe to this Observable.
+
+The `subscriber` can invoke methods like `next` which is similar to when I set up a subscription:
+- I passed an object to `subscribe` where it has a property which defines a method called `next`:
+
+```ts
+ngOnInit(): void {
+    // subscription
+    const subscription = this.clickCount$.subscribe({
+        next: (value) => {
+        console.log('Click count updated:', value);
+        }
+    });
+}
+```
+So when setting up a subscription, we define what happens when that `next` event is emitted.
+
+But when creating an observable, we're simply interacting with that observer object, and we're controlling when that `next` function will be emitted:
+
+```ts
+customInterval$ = new Observable((subscriber) => {
+    subscriber.next(0);
+});
+```
+
+I can use `setInterval()` which is provided by browser, not RxJS, to run some code for every 2 sec:
+
+```ts
+customInterval$ = new Observable((subscriber) => {
+    setInterval(() => {}, 2000);
+});
+```
+
+Every 2 sec I want to trigger this `next` event and it will emit an object with a `message`:
+
+```ts
+customInterval$ = new Observable((subscriber) => {
+    setInterval(() => {
+        message: 'New value'
+    }, 2000);
+});
+```
+
+This `message` should be capture by the subscription later like this `value` here:
+
+```ts
+this.customInterval$.subscribe({
+    next: value => console.log(value)
+});
+```
+
+So far the code will be like this:
+```ts
+export class AppComponent implements OnInit {
+  clickCount = signal(0);
+  clickCount$ = toObservable(this.clickCount);
+  interval$ = interval(1000);
+  intervalSignal = toSignal(this.interval$, {initialValue: 0});
+  customInterval$ = new Observable((subscriber) => {  // added!
+    setInterval(() => {
+      console.log('Emitting new value...');
+      subscriber.next({
+        message: 'New value'
+      });
+    }, 2000);
+  });
+  private destroyRef = inject(DestroyRef);
+
+  ngOnInit(): void {
+    this.customInterval$.subscribe({     // added!
+      next: value => console.log(value)
+    });
+    const subscription = this.clickCount$.subscribe({
+      next: (value) => {
+        console.log('Click count updated:', value);
+      }
+    });
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
+    });
+  } 
+
+  onClick() {
+    this.clickCount.update(prevCount => prevCount + 1);
+  }
+}
+```
+
+The Console tab in the dev tool will now keep printing:
+```
+Emitting new value...
+{message: 'New value'}
+```
+
+So far it's already good. But other than emitting new values, I can also add `complete`.
+
+In the `customeInterval$` observable, I can add a variable count to track when to stop.
+
+`clearInterval` and `setInterval` are built in functions from JavaScript, not from RxJS.
+
+```ts
+customInterval$ = new Observable((subscriber) => {
+    let count = 0;
+
+    const interval = setInterval(() => {
+      if (count > 3) {
+        clearInterval(interval);
+        subscriber.complete(); // emit an event to clean up the subscription
+        return; // exit the function to prevent further emissions
+      }
+
+      console.log('Emitting new value...');
+      
+      subscriber.next({
+        message: 'New value'
+      });
+
+      count++; // whenever a new value is emitted, increment the count
+    }, 2000);
+  });
+```
+
+And I can also make the subscription listen to that `complete` event:
+
+```ts
+this.customInterval$.subscribe({
+    next: value => console.log(value),
+    complete: () => console.log('COMPLETED!')
+});
+```
+
+So far the finish code is like this:
+
+```ts
+export class AppComponent implements OnInit {
+  clickCount = signal(0);
+  clickCount$ = toObservable(this.clickCount);
+  interval$ = interval(1000);
+  intervalSignal = toSignal(this.interval$, {initialValue: 0});
+  customInterval$ = new Observable((subscriber) => {
+    let count = 0;
+
+    const interval = setInterval(() => {
+      if (count > 3) {
+        clearInterval(interval);
+        subscriber.complete(); // emit an event to clean up the subscription
+        return; // exit the function to prevent further emissions
+      }
+
+      console.log('Emitting new value...');
+      
+      subscriber.next({
+        message: 'New value'
+      });
+
+      count++; // whenever a new value is emitted, increment the count
+    }, 2000);
+  });
+  private destroyRef = inject(DestroyRef);
+
+  ngOnInit(): void {
+    this.customInterval$.subscribe({
+      next: value => console.log(value),
+      complete: () => console.log('COMPLETED!')
+    });
+    const subscription = this.clickCount$.subscribe({
+      next: (value) => {
+        console.log('Click count updated:', value);
+      }
+    });
+    this.destroyRef.onDestroy(() => {
+      subscription.unsubscribe();
+    });
+  } 
+
+  onClick() {
+    this.clickCount.update(prevCount => prevCount + 1);
+  }
+}
+```
+
+The Console tab will now print like this:
+
+```
+Emitting new value...
+{message: 'New value'}
+Emitting new value...
+{message: 'New value'}
+Emitting new value...
+{message: 'New value'}
+Emitting new value...
+{message: 'New value'}
+COMPLETED!
+```
+
+Other than `next`, `complete`, I can also make my `customInterval` to emit `error` event.
+
+## Module Summary 
