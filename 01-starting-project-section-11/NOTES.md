@@ -518,3 +518,8 @@ COMPLETED!
 Other than `next`, `complete`, I can also make my `customInterval` to emit `error` event.
 
 ## Module Summary 
+
+Remember:
+- Signals are about managing values, and it has initial values. Observables are about managing events, and it doesn't have initial values.
+- I need to subscribe at least once to kick off the observables.
+- I can always refer to the RxJS doc to see all the possible operators that I can use to work with the values that are produced by observables.
