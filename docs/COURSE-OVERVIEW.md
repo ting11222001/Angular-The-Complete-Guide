@@ -131,21 +131,21 @@ Next, I will do Section 13.
 
 ## Section 12: Sending HTTP Requests &amp; Handling Responses
 
-Last update: Aug 5, 2026.
+Last update: Aug 29, 2026.
 
-I will skip it for now.
+I will start doing this after section 14.
 
 ## Section 13: Handling User Input &amp; Working with Forms (Template-driven &amp; Reactive)
 
-Last update: Aug 28, 2026.
+Last update: Aug 29, 2026.
 
-I will start doing this from Aug 28 onwards.
+I will start doing this after section 14, then section 12, then back to this section 13.
 
 ## Section 14: Routing &amp; Building Multi-page Single Page Applications
 
-Last update: Aug 5, 2026.
+Last update: Aug 29, 2026.
 
-I will skip it for now.
+I will start doing this from Aug 29, 2026 onwards. Next, section 12.
 
 ## Section 15: Code Splitting &amp; Deferrable Views
 
