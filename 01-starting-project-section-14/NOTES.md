@@ -108,3 +108,50 @@ bootstrapApplication(AppComponent, appRoutes).catch((err) => console.error(err))
 So now I've made all the files lean and clean and the routing is enabled for this application.
 
 Next, I will be adding more routes to see the routing working.
+
+## Rendering Routes
+
+In `AppComponent` template, place a marker so that Angular knows where in the screen it should render the `TasksComponent` template.
+
+First, add this import to the `AppComponent`:
+
+```ts
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css',
+  imports: [HeaderComponent, UsersComponent, RouterOutlet],
+})
+export class AppComponent {}
+```
+
+And replace `<p>Todo ...</p>` with `<router-outlet />`:
+
+```html
+<app-header />
+
+<main>
+  <app-users />
+
+  <div>
+    <router-outlet /> <--- here's where the loaded component should be displayed
+  </div>
+</main>
+```
+
+So now when I navigate to `http://localhost:4200/tasks` it will show `There are no tasks yet. Start adding some!` instead of `Todo ...` on the right side.
+
+If I go back to `http://localhost:4200/`, there will be nothing on the right side.
+
+Back to `/tasks` route, and open the Elements tab, I can see `<app-tasks>` rendered alongside the `<router-outlet />`:
+
+```html
+<div>
+    <router-outlet />
+    <app-tasks></app-tasks> <--- here!
+</div>
+```
+
+## Registering Multiple Routes
+
