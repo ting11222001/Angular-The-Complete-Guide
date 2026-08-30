@@ -144,7 +144,7 @@ So now when I navigate to `http://localhost:4200/tasks` it will show `There are 
 
 If I go back to `http://localhost:4200/`, there will be nothing on the right side.
 
-Back to `/tasks` route, and open the Elements tab, I can see `<app-tasks>` rendered alongside the `<router-outlet />`:
+Back to `http://localhost:4200/tasks` route, and open the Elements tab, I can see `<app-tasks>` rendered alongside the `<router-outlet />`:
 
 ```html
 <div>
@@ -155,3 +155,21 @@ Back to `/tasks` route, and open the Elements tab, I can see `<app-tasks>` rende
 
 ## Registering Multiple Routes
 
+Add a route that's empty and it will visit the `NoTaskComponent`.
+
+For example, in `app.routes.ts`:
+
+```ts
+export const routes: Routes = [
+    {
+        path: '',  // <your-domain>/
+        component: NoTaskComponent
+    },
+    {
+        path: 'tasks', // <your-domain>/tasks
+        component: TasksComponent  
+    }
+]
+```
+
+So now if I go to `http://localhost:4200/`, then on the right side, it will just show `Select a user to see their tasks!`.
