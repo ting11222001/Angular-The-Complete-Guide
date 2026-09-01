@@ -173,3 +173,102 @@ export const routes: Routes = [
 ```
 
 So now if I go to `http://localhost:4200/`, then on the right side, it will just show `Select a user to see their tasks!`.
+
+
+## Adding Links the Right Way
+
+The goal is to do this - when a user is clicked in the left side navigation, it should navigate to the url that includes an user id.
+
+In the `UserComponent` template, if I directly add `href` to the `a` tag, it will keep fetching the `index.html` and loading all the JavaScript files for `TasksComponent` in the Network tab, and the screen will keep refreshing:
+
+```html
+<div>
+  <a href="/tasks">
+    <img [src]="imagePath()" [alt]="user().name" />
+    <span>{{ user().name }}</span>
+  </a>
+</div>
+```
+
+Instead, I should use the `routerLink` directive - Angular will block the default browser behavior which was to fetch the `index.html` all the time, and Angular will look at the `app.route.ts` to load the right component for me.
+
+So update the `UserComponent` template with `routerLink="/tasks"`:
+
+```html
+<div>
+  <a routerLink="/tasks">
+    <img [src]="imagePath()" [alt]="user().name" />
+    <span>{{ user().name }}</span>
+  </a>
+</div>
+
+```
+
+And add the `RouterLink` import to the `UserComponent`:
+
+```ts
+@Component({
+  selector: 'app-user',
+  standalone: true,
+  imports: [RouterLink], // added!
+  templateUrl: './user.component.html',
+  styleUrl: './user.component.css',
+})
+export class UserComponent {
+  user = input.required<User>();
+
+  imagePath = computed(() => 'users/' + this.user().avatar);
+}
+```
+
+So now when I click on each user in the left side bar, the page will not flicker. The HTML and JavaScript files are fetched once in the Network tab.
+
+## Styling Active Navigation Links
+
+The goal is to set up dynamic styling to the active tab i.e. when a user is clicked in the left side bar, its tab should be lit up.
+
+I can do this by adding some code to the dynamic property `[class.selected]="isSelected()"`:
+```html
+<div>
+  <a routerLink="/tasks" [class.selected]="isSelected()">
+    <img [src]="imagePath()" [alt]="user().name" />
+    <span>{{ user().name }}</span>
+  </a>
+</div>
+```
+
+Note:
+- `[class.selected]` is a class binding. It tells Angular to add or remove one CSS class, here selected, based on a condition.
+- Angular calls `isSelected()` on your component. If it returns true, the anchor tag gets the class added, so it becomes `<a class="selected" ...>`. If it returns false, the class stays off.
+
+I can also use this `routerLinkActive` directive like this:
+
+```html
+<div>
+  <a routerLink="/tasks" routerLinkActive="selected">
+    <img [src]="imagePath()" [alt]="user().name" />
+    <span>{{ user().name }}</span>
+  </a>
+</div>
+```
+
+And add the `RouterLink` import to the `UserComponent`:
+
+```ts
+@Component({
+  selector: 'app-user',
+  standalone: true,
+  imports: [RouterLink, RouterLinkActive],
+  templateUrl: './user.component.html',
+  styleUrl: './user.component.css',
+})
+export class UserComponent {
+  user = input.required<User>();
+
+  imagePath = computed(() => 'users/' + this.user().avatar);
+}
+```
+
+Now on the screen, all the user tabs are lit up as they're all pointing to the same route, `/tasks`.
+
+I should start adding the user id of whom I clicked to this path, `/tasks`. I also need to set up a route that allows me to encode the dynamic info into the path in `app.routes.ts`.
