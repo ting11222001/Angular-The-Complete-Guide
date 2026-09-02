@@ -272,3 +272,62 @@ export class UserComponent {
 Now on the screen, all the user tabs are lit up as they're all pointing to the same route, `/tasks`.
 
 I should start adding the user id of whom I clicked to this path, `/tasks`. I also need to set up a route that allows me to encode the dynamic info into the path in `app.routes.ts`.
+
+## Setting up and Navigating to Dynamic Routes
+
+`:userId` is the dynamic path segment. It's up to me how to name it. It can be `:uId`.
+
+`users/:userId` will be `<your-domain>/users/u1`, `<your-domain>/users/u2`, etc., because `User` interface has `id` property and the mock data has `u1`, `u2`, etc.:
+
+```ts
+export const routes: Routes = [
+    ...
+    {
+        path: 'users/:userId', // <your-domain>/users/u1
+        component: UserTasksComponent
+    }
+]
+```
+
+To give `routerLink` dynamic values, I need to change it to property binding like the below.
+
+In `UserComponent` template:
+
+```html
+<!-- old -->
+<div>
+  <a routerLink="/users/" routerLinkActive="selected">
+    <img [src]="imagePath()" [alt]="user().name" />
+    <span>{{ user().name }}</span>
+  </a>
+</div>
+
+<!-- new -->
+<div>
+  <a [routerLink]="'/users/' + user().id" routerLinkActive="selected">
+    <img [src]="imagePath()" [alt]="user().name" />
+    <span>{{ user().name }}</span>
+  </a>
+</div>
+```
+
+In `UserComponent`, I've got a `user` InputSignal so I could use it with `user()`:
+
+```ts
+export class UserComponent {
+  user = input.required<User>();
+}
+```
+
+And besides writing like this `[routerLink]="'/users/' + user().id"`, I can also write like this to pass an array (basically each item in the array is a segment in the path, and Angular will automatically insert `/` in between the segments):
+
+```html
+<div>
+  <a [routerLink]="['/users', user().id]" routerLinkActive="selected">
+    <img [src]="imagePath()" [alt]="user().name" />
+    <span>{{ user().name }}</span>
+  </a>
+</div>
+```
+
+So now on screen, when I click on each user tab in the left side nav bar, the url will change to the clicked user like `http://localhost:4200/users/u3`, and it will be lit up as `active` style.
