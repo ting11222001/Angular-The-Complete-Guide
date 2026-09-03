@@ -331,3 +331,110 @@ And besides writing like this `[routerLink]="'/users/' + user().id"`, I can also
 ```
 
 So now on screen, when I click on each user tab in the left side nav bar, the url will change to the clicked user like `http://localhost:4200/users/u3`, and it will be lit up as `active` style.
+
+## Extracting Dynamic Route Parameters via Inputs
+
+My goal is to get the path parameter in a component e.g. from `users/:userId` into `UserTasksComponent`.
+
+In `app.routes.ts` I have this:
+
+```ts
+{
+    path: 'users/:userId', // <your-domain>/users/u1
+    component: UserTasksComponent
+}
+```
+
+Use an input with the same name as the path parameter like `userId` in the `UserTasksComponent`:
+
+```ts
+export class UserTasksComponent {
+  userId = input.required<string>();
+}
+```
+
+`userId` from the url will be a string as the entire url is going to be a long string.
+
+I then need to go to `app.config.ts` to tell Angular that I want to use this input based approach, and add `withComponentInputBinding()` like this:
+
+```ts
+export const appRoutes: ApplicationConfig = {
+   providers: [
+      provideRouter(routes, withComponentInputBinding())
+   ], 
+}
+```
+
+Once that's done, which is `Enables binding information from the Router state directly to the inputs of the component in Route configurations.`, then in the `UserTasksComponent` I should be able to do this:
+
+```html
+<!-- old -->
+<section id="tasks">
+  <header>
+    <h2>USERS Tasks</h2>
+    <menu>
+      <a>Add Task</a>
+    </menu>
+  </header>
+
+  <p>Todo ...</p>
+</section>
+
+
+<!-- new -->
+
+```
+
+Note that the user data is from `UsersService` which is getting dummy users data from `DUMMY_USERS`.
+
+```ts
+@Injectable({
+  providedIn: 'root',
+})
+export class UsersService {
+  get users() {
+    return DUMMY_USERS;
+  }
+}
+```
+
+```ts
+export const DUMMY_USERS = [
+  {
+    id: 'u1',
+    name: 'Jasmine Washington',
+    avatar: 'user-1.jpg',
+  },
+    ...
+];
+```
+
+So then I can inject the `UsersService` into the `UserTasksComponent` and then create a computed signal, `userName`, to find the user with userId from the url. Retrieve its name to display:
+
+```ts
+export class UserTasksComponent {
+  userId = input.required<string>();
+
+  private usersService = inject(UsersService);
+  userName = computed(() => 
+    this.usersService.users.find(user => user.id === this.userId())?.name
+  );
+}
+```
+
+And sub the task title with the `userName` of the selected user (the url with append with that selected user's id too):
+
+```html
+<section id="tasks">
+  <header>
+    <h2>{{ userName() }} Tasks</h2>
+    <menu>
+      <a>Add Task</a>
+    </menu>
+  </header>
+
+  <p>Todo ...</p>
+</section>
+```
+
+This is one way of extracting the data from the url and using it in a component.
