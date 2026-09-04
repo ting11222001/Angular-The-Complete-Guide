@@ -438,3 +438,120 @@ And sub the task title with the `userName` of the selected user (the url with ap
 ```
 
 This is one way of extracting the data from the url and using it in a component.
+
+## Extracting Dynamic Route Parameters via Observables
+
+Alternatively, I can use an observable.
+
+For example, using `activatedRoute` will give me an object. One of the properties is `paramMap`, and it's an observable.
+
+`ActivatedRoute` provides information about the route associated with the currently loaded component. Read ![here](https://angular.dev/api/router/ActivatedRoute).
+
+```ts
+export class UserTasksComponent implements OnInit {
+  private activatedRoute = inject(ActivatedRoute); // added!
+
+  private usersService = inject(UsersService);
+
+  ngOnInit() {
+    console.log('activatedRoute: ', this.activatedRoute);   // added!
+    this.activatedRoute.paramMap.subscribe((paramMap) => {  // added!
+      console.log('paramMap: ', paramMap);
+    });
+  }
+}
+```
+
+And the `paramMap` looks like this:
+
+```
+{
+    "params": {
+        "userId": "u2"
+    }
+}
+```
+
+`paramMap` has a `get` method to allow me to extract one of its key value pairs. Read ![here](https://angular.dev/api/router/ParamMap).
+
+So I can do this:
+
+```ts
+export class UserTasksComponent implements OnInit {
+  private activatedRoute = inject(ActivatedRoute);
+  private usersService = inject(UsersService);
+  private destroyRef = inject(DestroyRef); // added!
+  userName = '';
+
+  ngOnInit() {
+    const subscription = this.activatedRoute.paramMap.subscribe({  // updated! whenever there is user id changes, it will notify
+      next: (paramMap: ParamMap) => 
+        this.userName = this.usersService.users.find(user => user.id === paramMap.get('userId'))?.name || ''
+    });
+    this.destroyRef.onDestroy(() => subscription.unsubscribe()); // added!
+  }
+}
+```
+
+And since the `userName` is no longer a signal in this approach, so the template here should update as this `userName` instead of `userName()`:
+
+```html
+<section id="tasks">
+  <header>
+    <h2>{{ userName }} Tasks</h2>
+    <menu>
+      <a>Add Task</a>
+    </menu>
+  </header>
+
+  <p>Todo ...</p>
+</section>
+```
+
+And it will have the same effect as the previous section's code:
+
+```ts
+export class UserTasksComponent {
+  userId = input.required<string>();
+
+  private usersService = inject(UsersService);
+  userName = computed(() => 
+    this.usersService.users.find(user => user.id === this.userId())?.name
+  );
+}
+```
+
+```html
+<section id="tasks">
+  <header>
+    <h2>{{ userName() }} Tasks</h2>
+    <menu>
+      <a>Add Task</a>
+    </menu>
+  </header>
+
+  <p>Todo ...</p>
+</section>
+```
+
+Another thing I noticed is that when using `ActivatedRoute` and clicked on each user to go to different routes, the `UserTasksComponent` is actually reused between the routes, `http://localhost:4200/users/u5`, `http://localhost:4200/users/u4`, etc.
+
+Console log of `activatedRoute` in `ngOnInit` only happened once:
+
+```ts
+export class UserTasksComponent implements OnInit {
+  private activatedRoute = inject(ActivatedRoute);
+  private usersService = inject(UsersService);
+  private destroyRef = inject(DestroyRef);
+  userName = '';
+
+  ngOnInit() {
+    console.log('activatedRoute: ', this.activatedRoute); // logged once
+    const subscription = this.activatedRoute.paramMap.subscribe({
+      next: (paramMap: ParamMap) => 
+        this.userName = this.usersService.users.find(user => user.id === paramMap.get('userId'))?.name || ''
+    });
+    this.destroyRef.onDestroy(() => subscription.unsubscribe());
+  }
+}
+```
