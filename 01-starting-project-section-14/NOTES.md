@@ -555,3 +555,132 @@ export class UserTasksComponent implements OnInit {
   }
 }
 ```
+
+## Working with Nested Routes
+
+My goal is to show the list of tasks of an user:
+
+`UserTasksComponent` template:
+
+```html
+<section id="tasks">
+  <header>
+    <h2>{{ userName }} Tasks</h2>
+    <menu>
+      <a>Add Task</a>
+    </menu>
+  </header>
+
+  <p>Todo ...</p>
+</section>
+```
+
+Start with registering a child path under the `users/:userId` path.
+
+Note that the child path will be appended to the the parent path like this - `users/:userId/tasks`.
+
+In `app.routes.ts`:
+
+```ts
+export const routes: Routes = [
+    {
+        path: '',  // <your-domain>/
+        component: NoTaskComponent
+    },
+    {
+        path: 'users/:userId', // <your-domain>/users/u1
+        component: UserTasksComponent,
+        children: [
+            {
+                path: 'tasks', // <your-domain>/users/u1/tasks
+                component: TasksComponent
+            }
+        ]
+    }
+]
+```
+
+Then, I also need to add a child `router outlet` in the `UserTasksComponent` template.
+
+Like this:
+
+```html
+<section id="tasks">
+  <header>
+    <h2>{{ userName }} Tasks</h2>
+    <menu>
+      <a>Add Task</a>
+    </menu>
+  </header>
+
+  <router-outlet />
+</section>
+```
+
+And add that `router outlet` into the `imports` in the component here:
+
+```ts
+@Component({
+  selector: 'app-user-tasks',
+  standalone: true,
+  imports: [RouterOutlet], // added!
+  templateUrl: './user-tasks.component.html',
+  styleUrl: './user-tasks.component.css',
+})
+export class UserTasksComponent implements OnInit {}
+```
+
+So now going to `http://localhost:4200/users/u2/tasks` will show `There are no tasks yet. Start adding some!` in that user's card on the right hand side.
+
+Note that the `router outlet` in the `AppComponent` template is only for the parent path:
+
+```html
+<app-header />
+
+<main>
+  <app-users />
+
+  <div>
+    <router-outlet />
+  </div>
+</main>
+```
+
+So I had to add a `router outlet` in the parent path of `UserTasksComponent` to let Angular know where to display the child component `TasksComponent`.
+
+Next, add another child path to the `app.route.ts` like this:
+
+```ts
+export const routes: Routes = [
+    {
+        path: '',  // <your-domain>/
+        component: NoTaskComponent
+    },
+    {
+        path: 'users/:userId', // <your-domain>/users/u1
+        component: UserTasksComponent,
+        children: [
+            {
+                path: 'tasks', // <your-domain>/users/u1/tasks
+                component: TasksComponent
+            },
+            {
+                path: 'tasks/new', // <your-domain>/users/u1/tasks/new  // added!
+                component: NewTaskComponent
+            }
+        ]
+    }
+]
+```
+
+Then, go to `http://localhost:4200/users/u2/tasks/new` will show a `Add Task` form for that user.
+
+### Screenshots
+
+Currently, going to `http://localhost:4200/users/u2/tasks`, it will show:
+
+![Project 14 screenshot4](../demo/Project-14-2026-09-05-1.png)
+
+And, going to `http://localhost:4200/users/u2/tasks/new`, it will show:
+
+![Project 14 screenshot5](../demo/Project-14-2026-09-05-2.png)
