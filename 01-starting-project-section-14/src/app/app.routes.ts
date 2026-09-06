@@ -14,7 +14,7 @@ export const routes: Routes = [
         component: UserTasksComponent,
         children: [
             {
-                path: 'tasks', // <your-domain>/users/u1/tasks
+                path: 'tasks', // <your-domain>/users/u1/tasks -> temporary route to show all tasks for a user
                 component: TasksComponent
             },
             {

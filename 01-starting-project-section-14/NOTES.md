@@ -646,7 +646,7 @@ Note that the `router outlet` in the `AppComponent` template is only for the par
 </main>
 ```
 
-So I had to add a `router outlet` in the parent path of `UserTasksComponent` to let Angular know where to display the child component `TasksComponent`.
+So I had to add a `router outlet` in the parent path of `UserTasksComponent` to let Angular know where to display the child component `TasksComponent` when the path is `tasks` and `NewTaskComponent` when the path is `tasks/new`.
 
 Next, add another child path to the `app.route.ts` like this:
 
@@ -684,3 +684,40 @@ Currently, going to `http://localhost:4200/users/u2/tasks`, it will show:
 And, going to `http://localhost:4200/users/u2/tasks/new`, it will show:
 
 ![Project 14 screenshot5](../demo/Project-14-2026-09-05-2.png)
+
+## Route Links & Relative Links
+
+To make sure that the UI can let me directly go to `http://localhost:4200/users/u2/tasks/new` instead of me manually typing it, go to `UserTasksComponent`, and add `routerLink="tasks/new"`, which is called a `relative link` to its template:
+
+```html
+<section id="tasks">
+  <header>
+    <h2>{{ userName }} Tasks</h2>
+    <menu>
+      <a routerLink="tasks/new">Add Task</a>
+    </menu>
+  </header>
+
+  <router-outlet />
+</section>
+```
+
+When I  write `routerLink="tasks/new"` (no leading slash), Angular treats it as relative to the currently activated route at the point in the component tree where the link lives.
+
+Since this link is inside `UserTasksComponent`'s template, and `UserTasksComponent` is activated for the route, `users/:userId`, Angular resolves the relative path against that route's own path segment. So:
+
+- Current activated route: `users/u1`
+- Relative link: `tasks/new`
+- Resolved URL: `users/u1/tasks/new`
+
+If I wrote `routerLink="/tasks/new"` (with a leading slash), Angular would treat it as absolute, starting from the root.
+
+
+### what does `router-outlet` in `UserTasksComponent` do?
+
+`UserTasksComponent` is loaded for the path `users/:userId`. That component's template has its own `<router-outlet />`. This is a nested outlet, separate from the root outlet in `AppComponent`.
+
+When Angular matches a child route (like `tasks` or `tasks/new`), it renders that child component inside the parent's outlet, not the root one. So:
+
+- `/users/u1/tasks` → `UserTasksComponent` renders, and `TasksComponent` shows up inside its `<router-outlet />`.
+- `/users/u1/tasks/new` → `UserTasksComponent` renders, and `NewTaskComponent` shows up inside its `<router-outlet />`.
