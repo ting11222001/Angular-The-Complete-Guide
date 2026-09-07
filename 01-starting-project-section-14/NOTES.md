@@ -721,3 +721,94 @@ When Angular matches a child route (like `tasks` or `tasks/new`), it renders tha
 
 - `/users/u1/tasks` → `UserTasksComponent` renders, and `TasksComponent` shows up inside its `<router-outlet />`.
 - `/users/u1/tasks/new` → `UserTasksComponent` renders, and `NewTaskComponent` shows up inside its `<router-outlet />`.
+
+## Accessing Parent Route Data From Inside Nested Routes
+
+To inject the dynamic route path parameters into the child routes like into `TasksComponent`, in `app.config.ts`, add `withRouterConfig()` along with its argument:
+
+```ts
+export const appRoutes: ApplicationConfig = {
+   providers: [
+      provideRouter(
+         routes, 
+         withComponentInputBinding(),
+         withRouterConfig({
+            paramsInheritanceStrategy: 'always'
+         })
+      )
+   ], 
+}
+```
+
+Then, in `TasksComponent` add this:
+
+```ts
+export class TasksComponent {
+  userId = input.required<string>(); // added!
+  userTasks: Task[] = [];
+}
+```
+
+And add this in `TasksComponent` template:
+
+```html
+<!-- added this h3 tag temporarily! -->
+<h3>{{ userId() }}</h3> 
+
+<ul>
+  @for (task of userTasks; track task.id) {
+    <li>
+      <app-task [task]="task" />
+    </li>
+  } @empty {
+    <p>There are no tasks yet. Start adding some!</p>
+  }
+</ul>
+```
+
+So that on screen when going to `http://localhost:4200/users/u2/tasks`, on screen it shows the `userId` parameter:
+
+![Project 14 screenshot6](../demo/Project-14-2026-09-07-1.png)
+
+Next, I will use `TasksService` and its `allTasks` signal and filter out the correct user's tasks based on that `userId`.
+
+##  Loading Data Based On Route Parameters In Child Routes
+
+In `TasksComponent` add the below.
+
+Whenever the `allTasks` or `userId` signals change, then the `userTasks` this computed signal will be updated:
+
+```ts
+// old
+export class TasksComponent {
+  userId = input.required<string>();
+  userTasks: Task[] = [];
+}
+
+// new
+export class TasksComponent {
+  userId = input.required<string>();
+  private tasksService = inject(TasksService); // added!
+  userTasks = computed(() => 
+    this.tasksService.allTasks().filter(task => task.userId === this.userId()) // added!
+  );
+}
+```
+
+Then, read that `userTasks()` signal in the `TasksComponent` template:
+
+```html
+<ul>
+  @for (task of userTasks(); track task.id) {
+    <li>
+      <app-task [task]="task" />
+    </li>
+  } @empty {
+    <p>There are no tasks yet. Start adding some!</p>
+  }
+</ul>
+```
+
+It will show tasks for each user now:
+
+![Project 14 screenshot7](../demo/Project-14-2026-09-07-2.png)
