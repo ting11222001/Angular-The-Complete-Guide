@@ -143,9 +143,11 @@ I will start doing this after section 14, then section 12, then back to this sec
 
 ## Section 14: Routing &amp; Building Multi-page Single Page Applications
 
-Last update: Aug 29, 2026.
+Last update: Sep 8, 2026.
 
-I will start doing this from Aug 29, 2026 onwards. Next, section 12.
+I started doing this from Aug 29, 2026 onwards until the video No. 281 on Sep 8. 
+
+Just that at work I will need to work something similar to the section 12, so I have to switch over there first.
 
 ## Section 15: Code Splitting &amp; Deferrable Views
 
