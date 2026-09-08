@@ -149,6 +149,14 @@ I started doing this from Aug 29, 2026 onwards until the video No. 281 on Sep 8.
 
 Just that at work I will need to work something similar to the section 12, so I have to switch over there first.
 
+I checked out to the `main` branch to setup all the code files for the section 12.
+
+After that, I will create `app-easy-task-routing-v2` branch and `app-http` branch out of the latest state of the `main` branch.
+
+So both feature branch has the new code files from the section 12. 
+
+Hopefully, that allows me to continue to work on both feature branches without interfering each other's files.
+
 ## Section 15: Code Splitting &amp; Deferrable Views
 
 Last update: Aug 5, 2026.
