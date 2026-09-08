@@ -8,6 +8,8 @@ Follow what I did for the section 9 exercise.
 
 Then, run `npm install`, and then `npm start`.
 
+It has two branches: first was `app-easy-task-routing` and then after decided to go in parallel with section 12, I created `app-easy-task-routing-v2`.
+
 ## What is Routing
 
 Angular apps are single page applications, which means there's only a single HTML page that's being served by the server that's hosting my Angular application to the client i.e. to the user visiting the website that's requesting this website/angular web app.
