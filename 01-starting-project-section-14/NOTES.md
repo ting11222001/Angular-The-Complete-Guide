@@ -724,7 +724,7 @@ When Angular matches a child route (like `tasks` or `tasks/new`), it renders tha
 
 ## Accessing Parent Route Data From Inside Nested Routes
 
-To inject the dynamic route path parameters into the child routes like into `TasksComponent`, in `app.config.ts`, add `withRouterConfig()` along with its argument:
+To inject the dynamic route path parameters into the child routes like `TasksComponent`, in `app.config.ts`, I can add `withRouterConfig()` along with its argument:
 
 ```ts
 export const appRoutes: ApplicationConfig = {
@@ -812,3 +812,117 @@ Then, read that `userTasks()` signal in the `TasksComponent` template:
 It will show tasks for each user now:
 
 ![Project 14 screenshot7](../demo/Project-14-2026-09-07-2.png)
+
+## Link Shortcuts & Programmatic Navigation
+
+Since in `app.config.ts`, I've added `withRouterConfig`:
+
+```ts
+export const appRoutes: ApplicationConfig = {
+   providers: [
+      provideRouter(
+         routes, 
+         withComponentInputBinding(),
+         withRouterConfig({
+            paramsInheritanceStrategy: 'always'
+         })
+      )
+   ], 
+}
+```
+
+so the `NewTaskComponent` as a child route can access the dynamic path parameter `userId` from the parent path:
+
+```ts
+export const routes: Routes = [
+    {
+        path: '',  // <your-domain>/
+        component: NoTaskComponent
+    },
+    {
+        path: 'users/:userId', // <your-domain>/users/u1
+        component: UserTasksComponent,
+        children: [
+            {
+                path: 'tasks', // <your-domain>/users/u1/tasks -> temporary route to show all tasks for a user
+                component: TasksComponent
+            },
+            {
+                path: 'tasks/new', // <your-domain>/users/u1/tasks/new
+                component: NewTaskComponent
+            }
+        ]
+    }
+]
+```
+
+So via `users/:userId/tasks/new`, `NewTaskComponent` can access the `userId` from the path when it's active:
+
+```ts
+export class NewTaskComponent {
+  userId = input.required<string>();
+}
+```
+
+So now I can add a new task `http://localhost:4200/users/u2/tasks/new`:
+
+![Project 14 screenshot8](../demo/Project-14-2026-09-08-1.png)
+
+And it will show in `http://localhost:4200/users/u2/tasks`:
+
+![Project 14 screenshot9](../demo/Project-14-2026-09-08-2.png)
+
+Next, ideally, once a task is created for an user i.e. once the `create` button is clicked, it should re-direct me to the `/tasks` route of that user, so does when the `cancel` button is clicked.
+
+So in the `NewTaskComponent` template, add `routerLink` for the cancel button:
+
+```html
+<!-- old -->
+<a>Cancel</a>
+
+<!-- new -->
+<a routerLink="../">Cancel</a>
+```
+
+`../` is a simple relative navigation provided by Angular, which will remove the last segment of the path i.e. going up a level. For example, `users/u3/tasks/new` will become `users/u3/tasks`.
+
+And remember to add `RouterLink` to the `imports` in the `NewTaskComponent`:
+
+```ts
+@Component({
+  selector: 'app-new-task',
+  standalone: true,
+  imports: [FormsModule, RouterLink],
+  templateUrl: './new-task.component.html',
+  styleUrl: './new-task.component.css',
+})
+export class NewTaskComponent {}
+```
+
+For the `create` button, add this `router` service and in `onSubmit()`, add `this.router.navigate()`:
+
+```ts
+export class NewTaskComponent {
+  userId = input.required<string>();
+  enteredTitle = signal('');
+  enteredSummary = signal('');
+  enteredDate = signal('');
+  private tasksService = inject(TasksService);
+  private router = inject(Router);
+
+  onSubmit() {
+    this.tasksService.addTask(
+      {
+        title: this.enteredTitle(),
+        summary: this.enteredSummary(),
+        date: this.enteredDate(),
+      },
+      this.userId()
+    );
+    // Navigate back to the user tasks page after adding a new task
+    this.router.navigate(['/users', this.userId(), 'tasks'], {
+      replaceUrl: true, // so user can't go back to the new task page with the back button
+    });
+  }
+}
+```
