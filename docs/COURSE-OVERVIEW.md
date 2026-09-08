@@ -151,7 +151,7 @@ Just that at work I will need to work something similar to the section 12, so I 
 
 I checked out to the `main` branch to setup all the code files for the section 12.
 
-After that, I will create `app-easy-task-routing-v2` branch and `app-http` branch out of the latest state of the `main` branch.
+After that, I will create `app-easy-task-routing-v2` branch and `app-http-place-picker` branch out of the latest state of the `main` branch.
 
 So both feature branch has the new code files from the section 12. 
 
